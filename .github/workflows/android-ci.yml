@@ -56,6 +56,13 @@ jobs:
       - name: Run unit tests
         working-directory: android
         run: gradle testDebugUnitTest --no-daemon
+      - name: Upload unit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: messenger-pro-unit-test-results
+          path: android/app/build/test-results/testDebugUnitTest/*.xml
+          if-no-files-found: error
       - name: Run Android lint
         working-directory: android
         run: gradle lintDebug --no-daemon
