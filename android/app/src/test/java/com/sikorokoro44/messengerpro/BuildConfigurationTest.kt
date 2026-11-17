@@ -7,8 +7,8 @@ import org.junit.Test
 /** Baseline checks against the generated configuration of the debug build. */
 class BuildConfigurationTest {
     @Test
-    fun applicationIdIsStable() {
-        assertEquals("com.sikorokoro44.messengerpro", BuildConfig.APPLICATION_ID)
+    fun applicationIdUsesStableNamespaceWithDebugSuffix() {
+        assertEquals("com.sikorokoro44.messengerpro.debug", BuildConfig.APPLICATION_ID)
     }
 
     @Test

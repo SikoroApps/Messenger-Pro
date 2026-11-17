@@ -44,8 +44,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # `yes` exits on SIGPIPE once sdkmanager stops reading. Disable pipefail
+          # for this pipeline so sdkmanager's status is the pipeline's status.
+          set +o pipefail
           yes | "${{ steps.sdk.outputs.path }}" --licenses > /dev/null
+          set -o pipefail
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Validate Gradle project
+        working-directory: android
+        run: gradle projects --no-daemon
       - name: Run unit tests
         working-directory: android
         run: gradle testDebugUnitTest --no-daemon
@@ -62,6 +69,15 @@ jobs:
       - name: Assemble debug APK
         working-directory: android
         run: gradle assembleDebug --no-daemon
+      - name: Verify APK package name
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          PACKAGE="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
+          echo "APK package name: $PACKAGE"
+          test "$PACKAGE" = "com.sikorokoro44.messengerpro.debug"
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
