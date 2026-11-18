@@ -71,6 +71,14 @@ sealed interface AuthError {
         override val retryable = true
     }
 
+    data class Unauthorized(
+        override val message: String = "Your session has ended. Sign in again.",
+    ) : AuthError {
+        override val code = "UNAUTHORIZED"
+        override val retryAfterSeconds = null
+        override val retryable = false
+    }
+
     data class Server(
         override val message: String = "The service could not complete that request.",
     ) : AuthError {

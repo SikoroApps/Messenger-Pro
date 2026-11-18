@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -47,7 +48,7 @@ fun CountrySelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Column {
-        TextButton(onClick = { expanded = true }) {
+        TextButton(onClick = { expanded = true }, modifier = Modifier.testTag("country_selector")) {
             Text("${selected.name} (+${selected.dialCode})")
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -87,7 +88,7 @@ fun PhoneEntryScreen(
             singleLine = true,
             enabled = !isBusy,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("phone_input"),
         )
         validationMessage?.let {
             Spacer(Modifier.height(8.dp))
@@ -128,7 +129,7 @@ fun OtpEntryScreen(
             singleLine = true,
             enabled = !isBusy,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("code_input"),
         )
         errorMessage?.let {
             Spacer(Modifier.height(8.dp))

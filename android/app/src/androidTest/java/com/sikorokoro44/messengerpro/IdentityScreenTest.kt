@@ -1,11 +1,23 @@
 package com.sikorokoro44.messengerpro
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTestTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.sikorokoro44.messengerpro.data.auth.OtpInputFormatter
+import com.sikorokoro44.messengerpro.data.auth.PhoneInputFormatter
 import com.sikorokoro44.messengerpro.ui.auth.Countries
+import com.sikorokoro44.messengerpro.ui.auth.Country
 import com.sikorokoro44.messengerpro.ui.auth.OtpEntryScreen
 import com.sikorokoro44.messengerpro.ui.auth.PhoneEntryScreen
 import org.junit.Rule
@@ -59,5 +71,70 @@ class IdentityScreenTest {
         composeRule.onNodeWithText("Sent to +•••••••3456").assertIsDisplayed()
         composeRule.onNodeWithText("Resend available in 30s").assertIsDisplayed()
         composeRule.onNodeWithText("Verify code").assertIsDisplayed()
+    }
+
+    @Test
+    fun countryPickerChangesTheSelectedDialCode() {
+        composeRule.setContent {
+            MaterialTheme {
+                var selected by remember { mutableStateOf<Country>(Countries.default) }
+                PhoneEntryScreen(
+                    phoneInput = "",
+                    onPhoneInputChange = {},
+                    selectedCountry = selected,
+                    onCountrySelected = { selected = it },
+                    validationMessage = null,
+                    errorMessage = null,
+                    isBusy = false,
+                    onSubmit = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTestTag("country_selector").performClick()
+        composeRule.onNodeWithText("South Africa (+27)").performClick()
+        composeRule.onNodeWithText("South Africa (+27)").assertIsDisplayed()
+    }
+
+    @Test
+    fun phoneFieldFormatsNationalInputWithoutChangingNormalizerRules() {
+        composeRule.setContent {
+            MaterialTheme {
+                var input by remember { mutableStateOf("") }
+                PhoneEntryScreen(
+                    phoneInput = input,
+                    onPhoneInputChange = { input = PhoneInputFormatter.format(it, "268") },
+                    selectedCountry = Countries.default,
+                    onCountrySelected = {},
+                    validationMessage = null,
+                    errorMessage = null,
+                    isBusy = false,
+                    onSubmit = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTestTag("phone_input").performTextInput("076123456")
+        composeRule.onNodeWithTestTag("phone_input").assertTextEquals("+268 76 123 456")
+    }
+
+    @Test
+    fun codeFieldAcceptsOnlySixDigitsAndEnablesVerification() {
+        composeRule.setContent {
+            MaterialTheme {
+                var code by remember { mutableStateOf("") }
+                OtpEntryScreen(
+                    redactedPhone = "+•••••••3456",
+                    codeInput = code,
+                    onCodeInputChange = { code = OtpInputFormatter.sanitize(it) },
+                    retryAfterSeconds = 0L,
+                    errorMessage = null,
+                    isBusy = false,
+                    onVerify = {},
+                    onResend = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTestTag("code_input").performTextInput("48a2-9 13")
+        composeRule.onNodeWithTestTag("code_input").assertTextEquals("482913")
+        composeRule.onNodeWithText("Verify code").assertIsEnabled()
     }
 }

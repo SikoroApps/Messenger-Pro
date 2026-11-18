@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,26 +19,36 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sikorokoro44.messengerpro.data.auth.InvalidPhoneReason
+import com.sikorokoro44.messengerpro.data.auth.OtpInputFormatter
+import com.sikorokoro44.messengerpro.data.auth.PhoneInputFormatter
 import com.sikorokoro44.messengerpro.data.auth.PhoneNormalizer
 import com.sikorokoro44.messengerpro.data.auth.PhoneValidationResult
+import com.sikorokoro44.messengerpro.data.network.AndroidNetworkStatus
 import com.sikorokoro44.messengerpro.data.network.ApiResult
+import com.sikorokoro44.messengerpro.data.network.AuthApi
 import com.sikorokoro44.messengerpro.data.network.AuthError
+import com.sikorokoro44.messengerpro.data.network.HttpAuthApi
 import com.sikorokoro44.messengerpro.data.network.OtpRequest
 import com.sikorokoro44.messengerpro.data.network.OtpVerifyRequest
+import com.sikorokoro44.messengerpro.data.network.TransportPolicy
 import com.sikorokoro44.messengerpro.data.network.UnconfiguredAuthApi
 import com.sikorokoro44.messengerpro.domain.auth.AuthEvent
 import com.sikorokoro44.messengerpro.domain.auth.AuthState
 import com.sikorokoro44.messengerpro.domain.auth.AuthStateMachine
+import com.sikorokoro44.messengerpro.domain.auth.CooldownTimer
 import com.sikorokoro44.messengerpro.security.DiagnosticsRedactor
 import com.sikorokoro44.messengerpro.ui.auth.Countries
 import com.sikorokoro44.messengerpro.ui.auth.Country
 import com.sikorokoro44.messengerpro.ui.auth.OtpEntryScreen
 import com.sikorokoro44.messengerpro.ui.auth.PhoneEntryScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,9 +95,18 @@ private fun MessengerProApp() {
 
 @Composable
 private fun IdentityFlow() {
-    // No endpoint or credential is constructed here. Until a backend is deployed this reports
-    // NOT_CONFIGURED; it never fabricates a code, session or successful authentication.
-    val authApi = remember { UnconfiguredAuthApi() }
+    val context = LocalContext.current
+    // The public base URL is a build-time constant with an empty default. No credential is ever
+    // part of it. With no valid HTTPS URL the API reports NOT_CONFIGURED and fabricates nothing.
+    val authApi: AuthApi = remember {
+        if (TransportPolicy.isSecureBaseUrl(BuildConfig.AUTH_BASE_URL)) {
+            HttpAuthApi(BuildConfig.AUTH_BASE_URL, OkHttpClient())
+        } else {
+            UnconfiguredAuthApi()
+        }
+    }
+    val networkStatus = remember { AndroidNetworkStatus(context) }
+    val cooldown = remember { CooldownTimer() }
     val machine = remember { AuthStateMachine() }
     var authState by remember { mutableStateOf<AuthState>(AuthState.PhoneEntry) }
     var phoneInput by remember { mutableStateOf("") }
@@ -94,7 +114,15 @@ private fun IdentityFlow() {
     var codeInput by remember { mutableStateOf("") }
     var validationMessage by remember { mutableStateOf<String?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var cooldownSeconds by remember { mutableStateOf(0L) }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            cooldownSeconds = cooldown.remainingSeconds()
+            delay(1_000L)
+        }
+    }
 
     fun dispatch(event: AuthEvent) {
         authState = machine.send(event)
@@ -102,6 +130,10 @@ private fun IdentityFlow() {
 
     fun reportFailure(error: AuthError) {
         errorMessage = DiagnosticsRedactor.error(error)
+        error.retryAfterSeconds?.let {
+            cooldown.start(it)
+            cooldownSeconds = cooldown.remainingSeconds()
+        }
         dispatch(AuthEvent.OtpRequestFailed(error))
     }
 
@@ -114,11 +146,19 @@ private fun IdentityFlow() {
             is PhoneValidationResult.Valid -> {
                 validationMessage = null
                 errorMessage = null
-                dispatch(AuthEvent.PhoneSubmitted(result.phone))
-                scope.launch {
-                    when (val response = authApi.requestOtp(OtpRequest(result.phone.e164, locale = "ss-ZA"))) {
-                        is ApiResult.Success -> dispatch(AuthEvent.OtpRequestSucceeded(response.data))
-                        is ApiResult.Failure -> reportFailure(response.error)
+                if (!networkStatus.isOnline()) {
+                    reportFailure(AuthError.Network())
+                } else {
+                    dispatch(AuthEvent.PhoneSubmitted(result.phone))
+                    scope.launch {
+                        when (val response = authApi.requestOtp(OtpRequest(result.phone.e164, locale = "ss-ZA"))) {
+                            is ApiResult.Success -> {
+                                cooldown.start(response.data.retryAfterSeconds)
+                                cooldownSeconds = cooldown.remainingSeconds()
+                                dispatch(AuthEvent.OtpRequestSucceeded(response.data))
+                            }
+                            is ApiResult.Failure -> reportFailure(response.error)
+                        }
                     }
                 }
             }
@@ -129,8 +169,10 @@ private fun IdentityFlow() {
         val context = otpContext(authState)
         if (context == null) {
             errorMessage = "Request a code first."
-        } else if (codeInput.length != 6 || !codeInput.all(Char::isDigit)) {
+        } else if (!OtpInputFormatter.isComplete(codeInput)) {
             errorMessage = "Enter the 6-digit code."
+        } else if (!networkStatus.isOnline()) {
+            errorMessage = DiagnosticsRedactor.error(AuthError.Network())
         } else {
             errorMessage = null
             dispatch(AuthEvent.CodeSubmitted(codeInput))
@@ -153,11 +195,19 @@ private fun IdentityFlow() {
     val resendCode: () -> Unit = {
         otpContext(authState)?.let { context ->
             errorMessage = null
-            dispatch(AuthEvent.ResendRequested)
-            scope.launch {
-                when (val response = authApi.requestOtp(OtpRequest(context.first, locale = "ss-ZA"))) {
-                    is ApiResult.Success -> dispatch(AuthEvent.OtpRequestSucceeded(response.data))
-                    is ApiResult.Failure -> reportFailure(response.error)
+            if (!networkStatus.isOnline()) {
+                reportFailure(AuthError.Network())
+            } else {
+                dispatch(AuthEvent.ResendRequested)
+                scope.launch {
+                    when (val response = authApi.requestOtp(OtpRequest(context.first, locale = "ss-ZA"))) {
+                        is ApiResult.Success -> {
+                            cooldown.start(response.data.retryAfterSeconds)
+                            cooldownSeconds = cooldown.remainingSeconds()
+                            dispatch(AuthEvent.OtpRequestSucceeded(response.data))
+                        }
+                        is ApiResult.Failure -> reportFailure(response.error)
+                    }
                 }
             }
         }
@@ -173,12 +223,11 @@ private fun IdentityFlow() {
         is AuthState.OtpEntry, is AuthState.VerifyingCode, is AuthState.Failed -> {
             val context = otpContext(state)
             if (context != null) {
-                val retrySeconds = if (state is AuthState.OtpEntry) state.retryAfterSeconds else 0L
                 OtpEntryScreen(
                     redactedPhone = DiagnosticsRedactor.phone(context.first),
                     codeInput = codeInput,
-                    onCodeInputChange = { codeInput = it },
-                    retryAfterSeconds = retrySeconds,
+                    onCodeInputChange = { codeInput = OtpInputFormatter.sanitize(it) },
+                    retryAfterSeconds = cooldownSeconds,
                     errorMessage = errorMessage,
                     isBusy = state is AuthState.VerifyingCode,
                     onVerify = verifyCode,
@@ -187,9 +236,12 @@ private fun IdentityFlow() {
             } else {
                 PhoneEntryScreen(
                     phoneInput = phoneInput,
-                    onPhoneInputChange = { phoneInput = it },
+                    onPhoneInputChange = { phoneInput = PhoneInputFormatter.format(it, country.dialCode) },
                     selectedCountry = country,
-                    onCountrySelected = { country = it },
+                    onCountrySelected = { selected ->
+                        country = selected
+                        phoneInput = PhoneInputFormatter.format(phoneInput, selected.dialCode)
+                    },
                     validationMessage = validationMessage,
                     errorMessage = errorMessage,
                     isBusy = state is AuthState.RequestingOtp,
@@ -200,9 +252,12 @@ private fun IdentityFlow() {
 
         else -> PhoneEntryScreen(
             phoneInput = phoneInput,
-            onPhoneInputChange = { phoneInput = it },
+            onPhoneInputChange = { phoneInput = PhoneInputFormatter.format(it, country.dialCode) },
             selectedCountry = country,
-            onCountrySelected = { country = it },
+            onCountrySelected = { selected ->
+                country = selected
+                phoneInput = PhoneInputFormatter.format(phoneInput, selected.dialCode)
+            },
             validationMessage = validationMessage,
             errorMessage = errorMessage,
             isBusy = state is AuthState.RequestingOtp,

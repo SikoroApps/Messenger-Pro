@@ -33,6 +33,21 @@ class SessionManager(
         }
     }
 
+    /** Force a rotation after an explicit 401, even when the local token is not near expiry. */
+    suspend fun refreshNow(): SessionTokens? {
+        val stored = store.load() ?: return null
+        return when (val result = api.refresh(RefreshRequest(stored.tokens.refreshToken))) {
+            is ApiResult.Success -> {
+                save(result.data)
+                result.data
+            }
+            is ApiResult.Failure -> {
+                store.clear()
+                null
+            }
+        }
+    }
+
     suspend fun logout() {
         store.load()?.let { api.logout(LogoutRequest(it.tokens.refreshToken)) }
         store.clear()
