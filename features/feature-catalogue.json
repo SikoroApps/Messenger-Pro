@@ -1022,13 +1022,13 @@
         "MP-040",
         "MP-058"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: client-generated codes would be forgeable",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: mock generation entropy and location review",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-060",
@@ -1040,13 +1040,13 @@
         "MP-040",
         "MP-059"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: plaintext code storage enables database theft abuse",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: verifier storage contract review",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-061",
@@ -1058,13 +1058,13 @@
         "MP-040",
         "MP-060"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: long-lived codes enlarge replay windows",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: expiry boundary tests against mocked clock",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-062",
@@ -1076,13 +1076,13 @@
         "MP-040",
         "MP-061"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: reusable codes allow session hijack",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: concurrent verification test for one code",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-063",
@@ -1292,13 +1292,13 @@
         "MP-040",
         "MP-073"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: without server enforcement attackers can flood SMS",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: cooldown rejection test against mocked clock",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-075",
@@ -1310,13 +1310,13 @@
         "MP-040",
         "MP-074"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: unlimited requests enable SMS flooding and cost abuse",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: rate limit boundary tests",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-076",
@@ -1328,13 +1328,13 @@
         "MP-040",
         "MP-075"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "medium: IP-only limits are weak but useful with other controls",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: per-IP limit tests",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-077",
@@ -1346,13 +1346,13 @@
         "MP-040",
         "MP-076"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "medium: global abuse can exhaust provider quota",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: global ceiling test with synthetic traffic",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-078",
@@ -1364,13 +1364,13 @@
         "MP-040",
         "MP-077"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: unlimited guessing undermines the code factor",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: attempt limit tests",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-079",
@@ -1490,13 +1490,13 @@
         "MP-040",
         "MP-084"
       ],
-      "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: tokens issued elsewhere would bypass verification",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: token issuance contract test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-086",
@@ -1508,13 +1508,13 @@
         "MP-040",
         "MP-085"
       ],
-      "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: non-rotating tokens allow long-lived hijack",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: rotation and reuse detection tests",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-087",
@@ -1652,13 +1652,13 @@
         "MP-040",
         "MP-093"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: server session remaining valid defeats logout",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: revocation contract test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 on eb9d991: :backend:test 17/17 pass (artifact messenger-pro-backend-test-results). Server-authoritative reference core in android/backend/; not deployed.",
+      "blocker": "No hosted backend or SMS credentials: reference core is unit-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-095",

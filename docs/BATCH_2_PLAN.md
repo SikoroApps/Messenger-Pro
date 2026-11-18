@@ -4,11 +4,13 @@
 **Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 19 client-boundary features are TESTED.**
 **Phone number + OTP only. No email, no password, no mandatory Google account.**
 
-## Client-boundary progress (verified)
-- HEAD `daaf9431d21a10dc9cb53fff522500a036e3e63b`, Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 — success, both jobs green; 21 JVM unit tests and 5 emulator tests pass, lint clean, debug APK SHA-256 `9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7` (artifact `14398863320`).
-- Implemented and CI-tested at the client boundary: `MP-047`, `MP-049`, `MP-051`–`MP-053`, `MP-056`, `MP-087`–`MP-090`, `MP-093`, `MP-096`, `MP-100`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. Each row in the catalogue carries the exact test and artifact evidence.
-- These are `TESTED`, not `COMPLETE`: the reconstructed catalogue's linear prerequisite chains include backend, SMS and end-to-end gates that cannot be satisfied without credentials and funding. Client work was selected because it is independently verifiable and introduces no partial identity claim.
-- Next: TLS-only transport policy and timeouts (`MP-048`, `MP-050`), phone input masking (`MP-054`), manual code interaction (`MP-065`, `MP-066`), client cooldown (`MP-073`), authenticated request/refresh wrapper (`MP-091`, `MP-092`), bounded retry/backoff and offline handling (`MP-097`–`MP-099`).
+## Progress (verified)
+- HEAD `eb9d991d36dc608ba1887cc600867260a629d9b4`, Android CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 — success, both jobs green; 37 app JVM tests, 17 backend JVM tests, 8 emulator tests, lint clean, debug APK SHA-256 `78c4e9a1277eaef4aa5620595a08e7c4452a3d392062e0a0cf134059e3b58b40`.
+- Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-065`, `MP-066`, `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`.
+- Server-authoritative rules now exist as a CI-tested JVM reference core in `android/backend/` (`MP-058`, `MP-060`–`MP-062`, `MP-074`–`MP-078`, `MP-085`, `MP-086`, `MP-094`, `MP-095`), with 11 identity tests covering code generation, hashed verifiers, expiry, attempts, replay, cooldown, rate limits, idempotency, session rotation/reuse and redaction.
+- These are `TESTED` or `BLOCKED`, never `COMPLETE`: the core is not deployed, no real SMS delivery exists, and the reconstructed catalogue's prerequisite chains include runtime gates that cannot be satisfied without credentials/funding.
+- Still blocked: backend deployment and RLS verification, SMS provider integration and real `+268` delivery, end-to-end delivered-code registration/sign-in (section 14 items 1–5).
+- Contract references: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
 
 
 

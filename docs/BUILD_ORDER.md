@@ -74,3 +74,32 @@ A batch is not complete merely because files or registry rows exist. Record comm
 - Verified client evidence: commits `d9ad485`, `1e9b07f`, `47588ab`, `3444c6f`, `4c3eb3e`, `daaf943`; CI runs 15, 16, 18 and 19 all success. Latest on HEAD `daaf9431d21a10dc9cb53fff522500a036e3e63b`: run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 — 21 JVM tests, 5 emulator tests, lint and debug APK all green; APK SHA-256 `9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7`.
 - Gradle wrapper is now committed and checksum-pinned (`d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab`); CI builds only through `./gradlew` on hosted runners.
 - Exit gate: unchanged; no Batch 2 feature may be marked COMPLETE without the evidence required in section 14 of the plan. Real delivered-code registration/sign-in is still BLOCKED on backend credentials and SMS funding.
+
+### Current batch records (updated this segment)
+
+Batch 1 remains COMPLETE. The following records are deliberately conservative: code-level,
+CI-tested work is recorded as `TESTED`, never as a completed batch gate.
+
+#### Batch 2 — Identity, Backend & Core Security: IN PROGRESS / BLOCKED
+- Verified green HEAD: `eb9d991d36dc608ba1887cc600867260a629d9b4`, Android CI run 29, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 — success, both jobs green.
+- Evidence: 37 Android JVM tests (`messenger-pro-unit-test-results`), 17 backend JVM tests (`messenger-pro-backend-test-results`), 8 API 35 emulator tests (`messenger-pro-device-test-results`), `lintDebug` clean, debug APK `messenger-pro-debug` SHA-256 `78c4e9a1277eaef4aa5620595a08e7c4452a3d392062e0a0cf134059e3b58b40`.
+- New this segment: a provider-independent, server-authoritative reference core in `android/backend/` (CSPRNG codes, HMAC verifiers with salt, constant-time comparison, atomic single-use consume, expiry, attempt limits, cooldown, per-phone/per-IP/global limits, idempotent request, token rotation with reuse detection, redaction), plus shared domain primitives. It is fully unit-tested in CI without credentials.
+- Still unmet: no deployed backend/RLS/migrations, no SMS provider credentials or funding, no real `+268` delivered-code test, no server-enforced behaviour observed at runtime. Therefore no Batch 2 feature is `COMPLETE` and the exit gate is not closed.
+
+#### Batch 3 — User profile and contact discovery: NOT_STARTED at gate level
+- `android/backend/` now has consent-gated, hash-only contact-matching and block/report domain models with JVM tests. No profile UI, permission flow, revocation test or server-side authorisation test exists. Permission-dependent behaviour remains IN_PROGRESS and requires device/emulator capability evidence.
+
+#### Batch 4 — One-to-one messaging: NOT_STARTED at gate level
+- Domain-level message idempotency, delivery/read state and pagination are implemented and unit-tested. No conversation UI, persistence, realtime transport or two-account end-to-end test exists.
+
+#### Batch 5 — Media and notifications: NOT_STARTED at gate level
+- Local media validation policy is implemented and unit-tested. No upload/download, push provider, notification permission path or failure-recovery runtime test exists.
+
+#### Batch 6 — Safety, privacy and account controls: NOT_STARTED at gate level
+- Privacy defaults, account-control and app-lock *policy* models are implemented and unit-tested. No verified blocking/reporting workflow, session/device controls, export/deletion flow or physical-device app-lock evidence exists.
+
+#### Batch 7 — Hardening and release: NOT_STARTED at gate level
+- `.github/workflows/android-release.yml` is untracked local scaffolding and is intentionally not committed. No signing keystore secret, signed release artifact, checksum publication, staged rollout or smoke test on a signed build exists. Accessibility, localization, crash-reporting policy and performance gates are not evidenced.
+
+### Honest completion statement
+Batches 2–7 cannot be truthfully marked COMPLETE from this environment: their exit gates require deployed infrastructure, paid/credentialed SMS and signing services, and physical-device or capable-emulator evidence that are not available here. The authoritative 600-feature catalogue is also unavailable; the checked-in catalogue is explicitly `RECONSTRUCTED — NOT ORIGINAL`. No status was fabricated to imply completion.
