@@ -93,6 +93,46 @@ class AuthServiceTest {
     }
 
     @Test
+    fun consumedCodeCannotCreateANewSessionAfterTheOriginalSessionIsRevoked() {
+        val clock = FakeClock()
+        val sms = RecordingSmsGateway()
+        val h = rig(clock, sms)
+        val request = h.service.requestOtp("+26876123456", "ip-hash")
+        val code = sms.lastCode!!
+        val verified = h.service.verifyOtp("+26876123456", request.requestId, code)
+
+        // Remove the session the code originally created; the consumed marker must still stand.
+        h.service.logout(verified.tokens.refreshToken)
+        assertEquals(0, h.sessions.count())
+
+        assertEquals(AuthFailure.CODE_CONSUMED, failureOf {
+            h.service.verifyOtp("+26876123456", request.requestId, code)
+        })
+        assertEquals(0, h.sessions.count())
+        assertEquals(1, h.accounts.count())
+    }
+
+    @Test
+    fun otpConsumeIsAtomicSingleUse() {
+        val records = InMemoryOtpRepository()
+        val now = 1_000L
+        val record = OtpRecord(
+            id = "req-1",
+            phone = "+26876123456",
+            verifier = "verifier",
+            salt = ByteArray(16),
+            expiresAt = now + 5_000L,
+            createdAt = now,
+        )
+        records.save(record)
+
+        assertTrue(records.consume("req-1", now + 1))
+        assertEquals(now + 1, record.consumedAt)
+        assertFalse(records.consume("req-1", now + 2))
+        assertEquals(now + 1, record.consumedAt)
+    }
+
+    @Test
     fun codeFromAnotherRequestCannotVerifyADifferentSignInAttempt() {
         val clock = FakeClock()
         val sms = RecordingSmsGateway()
