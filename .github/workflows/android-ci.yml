@@ -61,6 +61,16 @@ jobs:
           name: messenger-pro-unit-test-results
           path: android/app/build/test-results/testDebugUnitTest/*.xml
           if-no-files-found: error
+      - name: Run server-authoritative core tests
+        working-directory: android
+        run: ./gradlew :backend:test --no-daemon
+      - name: Upload backend core test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: messenger-pro-backend-test-results
+          path: android/backend/build/test-results/test/*.xml
+          if-no-files-found: error
       - name: Run Android lint
         working-directory: android
         run: ./gradlew lintDebug --no-daemon

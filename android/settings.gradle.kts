@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MessengerPro"
 include(":app")
+include(":backend")
