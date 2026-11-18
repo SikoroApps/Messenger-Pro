@@ -5,12 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -24,6 +22,7 @@ import com.sikorokoro44.messengerpro.ui.auth.Countries
 import com.sikorokoro44.messengerpro.ui.auth.Country
 import com.sikorokoro44.messengerpro.ui.auth.OtpEntryScreen
 import com.sikorokoro44.messengerpro.ui.auth.PhoneEntryScreen
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -183,8 +182,20 @@ class IdentityScreenTest {
     }
 
     private fun assertNoAlternateIdentityControls() {
-        composeRule.onAllNodesWithText("email", substring = true, ignoreCase = true).assertCountEquals(0)
-        composeRule.onAllNodesWithText("password", substring = true, ignoreCase = true).assertCountEquals(0)
+        assertNoText("email")
+        assertNoText("password")
+    }
+
+    private fun assertNoText(text: String) {
+        val isPresent = try {
+            composeRule
+                .onNodeWithText(text, substring = true, ignoreCase = true)
+                .fetchSemanticsNode()
+            true
+        } catch (_: AssertionError) {
+            false
+        }
+        assertFalse("Unexpected UI text containing '$text'", isPresent)
     }
 
     @Test
