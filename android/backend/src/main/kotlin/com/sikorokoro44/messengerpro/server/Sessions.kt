@@ -117,10 +117,13 @@ class TokenService(
         return issue(session.accountId)
     }
 
-    fun logout(refreshToken: String) {
+    /** Returns true only when an existing active session was actually revoked. */
+    fun logout(refreshToken: String): Boolean {
         val hash = hashRefresh(refreshToken)
-        val session = sessions.findByRefreshHash(hash) ?: return
+        val session = sessions.findByRefreshHash(hash) ?: return false
+        if (session.revokedAt != null || sessions.isConsumed(hash)) return false
         sessions.revoke(session.id, clock.nowMillis())
         sessions.markConsumed(hash, session.accountId)
+        return true
     }
 }

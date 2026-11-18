@@ -68,6 +68,8 @@ class AuthService(
     private val cooldown: ResendCooldown,
     private val tokens: TokenService,
     private val deliveries: SmsDeliveryReceiptService,
+    private val audit: AuditService? = null,
+    private val abuse: AbuseSignalLogger? = null,
 ) {
     private val hasher = OtpHasher(config.pepper)
     private val codeGenerator = OtpCodeGenerator()
@@ -93,6 +95,7 @@ class AuthService(
         }
 
         if (!ServerPhonePolicy.isValidE164(phone) || !ServerPhonePolicy.matchesKnownCountryLength(phone)) {
+            abuse?.record(AbuseSignal.INVALID_PHONE, phone)
             throw AuthException(AuthFailure.INVALID_PHONE)
         }
 
@@ -102,10 +105,14 @@ class AuthService(
             rateLimiter.enforce("ip", ipHash, config.perIpLimit, config.perIpWindowMs)
             rateLimiter.enforce("phone", phoneHash, config.perPhoneLimit, config.perPhoneWindowMs)
         } catch (e: IllegalArgumentException) {
+            abuse?.record(AbuseSignal.RATE_LIMIT_HIT, phone)
             throw AuthException(AuthFailure.RATE_LIMITED)
         }
 
-        cooldown.enforce(phoneHash)?.let { throw AuthException(AuthFailure.COOLDOWN_ACTIVE) }
+        cooldown.enforce(phoneHash)?.let {
+            abuse?.record(AbuseSignal.OTP_REQUEST_BURST, phone)
+            throw AuthException(AuthFailure.COOLDOWN_ACTIVE)
+        }
 
         val code = codeGenerator.generate()
         val salt = ByteArray(16)
@@ -130,10 +137,12 @@ class AuthService(
             smsDelivery.providerMessageId?.takeIf { it.isNotBlank() }?.let {
                 deliveries.recordProviderFailure(requestId, it, SmsFailureReason.PROVIDER_UNAVAILABLE)
             }
+            audit?.record(AuditAction.OTP_REQUESTED, phone, requestId, AuditOutcome.FAILURE)
             throw AuthException(AuthFailure.PROVIDER_UNAVAILABLE)
         }
 
         deliveries.recordHandoff(requestId, smsDelivery.providerMessageId!!)
+        audit?.record(AuditAction.OTP_REQUESTED, phone, requestId, AuditOutcome.SUCCESS)
         cooldown.mark(phoneHash)
         val result = OtpRequestResult(
             requestId = requestId,
@@ -150,13 +159,23 @@ class AuthService(
         if (!ServerPhonePolicy.isValidE164(phone) ||
             code.length != OtpCodeGenerator.CODE_LENGTH || !code.all(Char::isDigit)
         ) {
+            abuse?.record(AbuseSignal.INVALID_CODE_BURST, phone)
             throw AuthException(AuthFailure.INVALID_CODE)
         }
 
-        val record = otps.find(requestId) ?: throw AuthException(AuthFailure.REQUEST_NOT_FOUND)
+        val record = otps.find(requestId) ?: run {
+            abuse?.record(AbuseSignal.REPLAY_ATTEMPT, phone)
+            throw AuthException(AuthFailure.REQUEST_NOT_FOUND)
+        }
         val now = clock.nowMillis()
-        if (record.phone != phone || record.failedAt != null) throw AuthException(AuthFailure.INVALID_CODE)
-        if (record.consumedAt != null) throw AuthException(AuthFailure.CODE_CONSUMED)
+        if (record.phone != phone || record.failedAt != null) {
+            abuse?.record(AbuseSignal.INVALID_CODE_BURST, phone)
+            throw AuthException(AuthFailure.INVALID_CODE)
+        }
+        if (record.consumedAt != null) {
+            abuse?.record(AbuseSignal.REPLAY_ATTEMPT, phone)
+            throw AuthException(AuthFailure.CODE_CONSUMED)
+        }
         if (record.expiresAt <= now) {
             record.failedAt = now
             throw AuthException(AuthFailure.CODE_EXPIRED)
@@ -165,18 +184,34 @@ class AuthService(
 
         if (!hasher.matches(code, record.salt, record.verifier)) {
             record.attempts++
+            abuse?.record(AbuseSignal.INVALID_CODE_BURST, phone)
             throw AuthException(AuthFailure.INVALID_CODE)
         }
 
-        if (!otps.consume(requestId, now)) throw AuthException(AuthFailure.CODE_CONSUMED)
+        if (!otps.consume(requestId, now)) {
+            abuse?.record(AbuseSignal.REPLAY_ATTEMPT, phone)
+            throw AuthException(AuthFailure.CODE_CONSUMED)
+        }
 
         val account = accounts.upsertByPhone(phone, now)
+        audit?.record(AuditAction.OTP_VERIFIED, phone, requestId, AuditOutcome.SUCCESS)
         return VerifyResult(tokens.issue(account.id), account.state)
     }
 
-    fun refresh(refreshToken: String): Tokens = tokens.rotate(refreshToken)
+    fun refresh(refreshToken: String): Tokens = try {
+        tokens.rotate(refreshToken).also { rotated ->
+            audit?.record(AuditAction.SESSION_ROTATED, refreshToken, rotated.sessionId, AuditOutcome.SUCCESS)
+        }
+    } catch (e: AuthException) {
+        abuse?.record(AbuseSignal.SESSION_REUSE, refreshToken)
+        throw e
+    }
 
-    fun logout(refreshToken: String) = tokens.logout(refreshToken)
+    fun logout(refreshToken: String) {
+        if (tokens.logout(refreshToken)) {
+            audit?.record(AuditAction.SESSION_REVOKED, refreshToken, "logout", AuditOutcome.SUCCESS)
+        }
+    }
 }
 
 /** In-memory wiring of the reference implementation, used by CI and local review. */
@@ -186,6 +221,8 @@ data class ServerHarness(
     val accounts: InMemoryAccountRepository,
     val sessions: InMemorySessionRepository,
     val smsDeliveries: InMemorySmsDeliveryLog,
+    val auditLog: InMemoryAuditLog,
+    val abuseLog: InMemoryAbuseEventLog,
 )
 
 object AuthServiceFactory {
@@ -199,6 +236,8 @@ object AuthServiceFactory {
         val accounts = InMemoryAccountRepository(ids)
         val sessions = InMemorySessionRepository()
         val smsDeliveries = InMemorySmsDeliveryLog()
+        val auditLog = InMemoryAuditLog()
+        val abuseLog = InMemoryAbuseEventLog()
         val service = AuthService(
             config = config,
             clock = clock,
@@ -211,7 +250,9 @@ object AuthServiceFactory {
             cooldown = ResendCooldown(clock, config.cooldownMs),
             tokens = TokenService(config.pepper, ids, clock, sessions),
             deliveries = SmsDeliveryReceiptService(clock, smsDeliveries),
+            audit = AuditService(clock, config.pepper, auditLog),
+            abuse = AbuseSignalLogger(clock, config.pepper, abuseLog),
         )
-        return ServerHarness(service, otps, accounts, sessions, smsDeliveries)
+        return ServerHarness(service, otps, accounts, sessions, smsDeliveries, auditLog, abuseLog)
     }
 }

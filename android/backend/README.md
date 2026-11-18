@@ -21,6 +21,8 @@ the security-critical behaviour can be exercised in GitHub Actions without crede
 - `server/AuthHttp.kt` — a loopback-only HTTP adapter for the JSON contract. Integration tests use
   real sockets to verify status codes, redaction, idempotency, replay rejection and token rotation.
   It is explicitly not a hosted TLS deployment.
+- `server/Audit.kt` — keyed-hash audit records and generic abuse signals for auth transitions;
+  no phone number, OTP, token, request id or provider message is written to the logs.
 - `domain/` — consent-gated, hash-only contact matching, message idempotency/pagination, media
   validation and account-control policy models used by later batches.
 
