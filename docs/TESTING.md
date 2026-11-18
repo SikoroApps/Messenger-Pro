@@ -17,12 +17,12 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact code evidence: run 66 `44279051934` on `9de1861a9752bb69da95064ec1133bb8d33b9ade` —
-  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 48 backend JVM tests (including 5
-  `SmsFailoverTest` cases, a bounded device-session record case, atomic consumed-code replay cases
-  and 6 `AccountAuthorizationTest` cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint
-  0 errors/11 warnings, debug APK SHA-256
-  `569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.
+- Latest exact code evidence: run 69 `44282658517` on `a48a8d9b9048d1aecdc3d5f6aeabe54fef795579` —
+  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 50 backend JVM tests (including 5
+  `SmsFailoverTest` cases, a bounded device-session record case, atomic consumed-code replay cases,
+  6 `AccountAuthorizationTest` cases, cross-session rejection and metadata-only abuse-redaction
+  cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint 0 errors/11 warnings, debug APK
+  SHA-256 `d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -51,11 +51,16 @@ human-reviewed siSwati copy is evidenced. `MP-095` is covered by a loopback test
 bounded device-label creation and rotation continuity; it is not proof of Supabase/RLS persistence
 or a device-control UI. `MP-079` is covered by atomic `OtpRepository.consume` tests and a replay
 after session revocation; it is not proof of a deployed Edge Function or durable SQL consume.
-`MP-113` is covered by cross-account negative authorization tests against a session-derived
-caller; it is not proof of a deployed Supabase RLS policy or SQL migration.
+`MP-080` is covered by reference-core tests proving a code issued for one request or a previous
+completed session cannot open a different/newer session for the same phone; it is not proof of a
+deployed Edge Function or durable request binding. `MP-113` is covered by cross-account negative
+authorization tests against a session-derived caller; it is not proof of a deployed Supabase RLS
+policy or SQL migration. `MP-114` is covered by in-memory audit/abuse tests showing generic
+signals and keyed hashes only (no raw phone, IP, code or message body); it is not proof of a
+deployed telemetry sink or RLS-protected audit endpoint.
 
-Latest code evidence: CI run 66 `44279051934`,
-https://github.com/SikoroApps/Messenger-Pro/actions/runs/44279051934, on
-`9de1861a9752bb69da95064ec1133bb8d33b9ade` — 57 app JVM tests, 48 backend JVM tests, 11 API 35
+Latest code evidence: CI run 69 `44282658517`,
+https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517, on
+`a48a8d9b9048d1aecdc3d5f6aeabe54fef795579` — 57 app JVM tests, 50 backend JVM tests, 11 API 35
 emulator tests, lint clean and debug APK SHA-256
-`569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.
+`d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.

@@ -1400,13 +1400,13 @@
         "MP-040",
         "MP-079"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: cross-session reuse breaks identity binding",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: cross-session rejection test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 69 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517 success on a48a8d9b9048d1aecdc3d5f6aeabe54fef795579: 57 app JVM tests, 50 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5. AuthServiceTest.codeFromAnotherRequestCannotVerifyADifferentSignInAttempt rejects a code issued for one request when presented against a different request id for the same phone, and AuthServiceTest.codeFromAPreviousSessionCannotOpenANewSessionForTheSamePhone proves a code from an earlier completed session cannot open a newer request/session for the same phone. This is reference-core JVM evidence only; no deployed Edge Function, durable request binding or real end-to-end delivery/runtime is evidenced.",
+      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured; deployed cross-session enforcement remains unverified."
     },
     {
       "feature_id": "MP-081",
@@ -2012,13 +2012,13 @@
         "MP-040",
         "MP-113"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase PostgreSQL Row Level Security policy contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/Audit.kt and AuthService.kt (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference-core audit/abuse logging implemented and CI-tested; deployed telemetry, RLS policy and audit endpoint still required and not configured.",
       "security_impact": "medium: abuse logs can become a data leak",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: abuse event redaction test",
-      "verification_evidence": "",
-      "blocker": "Backend telemetry and audit endpoint not configured."
+      "verification_evidence": "Android CI run 69 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517 success on a48a8d9b9048d1aecdc3d5f6aeabe54fef795579: 57 app JVM tests, 50 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5. AuditTest.rateLimitAndCooldownAbuseEventsStayMetadataOnly proves cooldown and rate-limit abuse events are recorded only as generic signals (OTP_REQUEST_BURST/RATE_LIMIT_HIT) with keyed 64-character subject hashes and no raw phone, IP, code or message body. AuditTest.invalidPhoneAndMalformedCodeRecordOnlyGenericAbuseSignals, replayedCodeAndReusedRefreshTokenAreRecordedAsAbuseSignals and auditServicesHashRawInputBeforeLogging cover other abuse/audit events as metadata-only. This is reference-core in-memory evidence only; no deployed telemetry sink, RLS-protected audit endpoint or production log pipeline is evidenced.",
+      "blocker": "Backend telemetry and audit endpoint not configured; deployed Supabase RLS/audit storage remains unverified."
     },
     {
       "feature_id": "MP-115",

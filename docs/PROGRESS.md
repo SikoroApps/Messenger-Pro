@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `9de1861a9752bb69da95064ec1133bb8d33b9ade`.
-Android CI run 66 `44279051934`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44279051934 — **success on the exact HEAD**, both jobs green. All test counts and checksums below refer to run 66.
+Branch `main`, verified HEAD `a48a8d9b9048d1aecdc3d5f6aeabe54fef795579`.
+Android CI run 69 `44282658517`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517 — **success on the exact HEAD**, both jobs green. All test counts and checksums below refer to run 69.
 
 - JVM unit tests (`:app:testDebugUnitTest`): 57 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
-- Server-authoritative core tests (`:backend:test`): 48 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
+- Server-authoritative core tests (`:backend:test`): 50 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator tests (API 35, KVM x86_64): 11 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -28,7 +28,8 @@ Android CI run 66 `44279051934`, https://github.com/SikoroApps/Messenger-Pro/act
 - Added bounded, sanitized optional device labels to reference-core session records. Verify and refresh responses now expose a session id, and a real loopback HTTP test proves a label is recorded, capped at 64 characters, preserved across rotation and not logged. `MP-095` is `TESTED` from run 60; no Supabase/RLS persistence or device-control UI is claimed.
 - Strengthened consumed-code replay evidence: `OtpRecord.consumedAt` plus the atomic `OtpRepository.consume` contract are now covered by tests proving a consumed code cannot open a new session even after the original session is revoked. `MP-079` is `TESTED` from run 63; no deployed Edge Function or durable SQL consume is claimed. Run 62 failed on a wrong assumption that logout deletes session records; `d1181d8` corrected the test to assert revocation and no additional session.
 - Added `AuthorizedAccountAccess`, a reference-core model of the RLS row-ownership rule: caller identity is re-derived from a live session, ownership is checked before row lookup, cross-account reads/writes are denied with non-enumerating messages, and display names are bounded and sanitized. `AccountAuthorizationTest` (6 cases) passes in run 66 and `MP-113` is `TESTED` as reference-core evidence only; no deployed Supabase RLS policy is claimed. Run 65 failed on an incorrect expectation that the service path can reveal NOT_FOUND; `9de1861` corrected the test.
-- Advanced `MP-091`, `MP-097`, `MP-079` and `MP-113` to `TESTED` from runs 47, 50, 63 and 66, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 55 rows are now `TESTED` and no row was marked `COMPLETE`.
+- Added reference-core cross-session and abuse-logging evidence: `AuthServiceTest.codeFromAPreviousSessionCannotOpenANewSessionForTheSamePhone` proves a code from an earlier completed session cannot open a newer request/session for the same phone, and `AuditTest.rateLimitAndCooldownAbuseEventsStayMetadataOnly` proves cooldown and rate-limit abuse events are recorded only as generic signals (`OTP_REQUEST_BURST` / `RATE_LIMIT_HIT`) with keyed 64-character subject hashes and no raw phone, IP, code or message body. `MP-080` and `MP-114` are `TESTED` from run 69 as reference-core/in-memory evidence only; no deployed backend, durable request binding, telemetry sink or RLS-protected audit storage is claimed. Run 68 failed because the new audit test wrongly expected `OTP_REQUEST_BURST` when cooldown was disabled; `a48a8d9` corrected the test to assert each harness's actual generic signal while preserving redaction checks.
+- Advanced `MP-091`, `MP-097`, `MP-079`, `MP-113`, `MP-080` and `MP-114` to `TESTED` from runs 47, 50, 63, 66 and 69, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 57 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note
