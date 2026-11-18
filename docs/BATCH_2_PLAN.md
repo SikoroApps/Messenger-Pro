@@ -1,11 +1,13 @@
 # Batch 2 plan — Identity, Backend & Core Security
 
-**Status: IN PROGRESS — client boundary, reference core, SMS rules and loopback HTTP contract are CI-tested; backend, SMS delivery and server-enforced runtime features remain BLOCKED.**
+**Status: IN PROGRESS — client boundary, reference core, SMS rules, loopback HTTP contract, eSMS sandbox adapter and Supabase REST adapters are CI-tested; hosted deployment, real SMS delivery and server-enforced runtime features remain BLOCKED.**
 **Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 57 entries are TESTED.**
 **Phone number + OTP only. No email, no password, no mandatory Google account.**
 
 ## Progress (verified)
-- Code HEAD `a48a8d9b9048d1aecdc3d5f6aeabe54fef795579`, Android CI run 69 `44282658517` https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517 — success, both jobs green; 57 app JVM tests, 50 backend JVM tests, 11 emulator tests, lint clean, debug APK SHA-256 `d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.
+- Code HEAD `df30bffe8feb13db06ed22e307feddd62b81e01a`, Android CI run `44337788301` https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 — success, both jobs green; 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 `9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab`.
+- Runtime credentials probe `44336159672` https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 — success: all eight organization secrets are available, keystore/alias verified, both Supabase keys distinguished from an invalid control, eSMS sandbox start/check succeeded. See `docs/CREDENTIALS.md`.
+- `ESmsVerifyGateway`, `ProviderOtpService`, Supabase REST repositories and `0001_identity_foundation.sql` add credential-aware adapters without claiming deployment: eSMS is sandbox-only (`esms_test_` enforced), provider-managed codes are never stored, Supabase uses service-role headers server-side/CI-only, and RLS is deny-by-default. These are code and fake-transport test evidence only.
 - Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-063` (parsing only), `MP-065`, `MP-066`, `MP-072` (template/parser contract), `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. The client now sends a per-attempt idempotency key, maps `SESSION_REVOKED` to `Unauthorized`, enforces an optional HTTPS host allowlist, scopes bearer tokens to allowlisted HTTPS hosts even across redirects (`MP-091`), applies bounded jittered exponential backoff only to transient idempotent work (`MP-097`), and has a unit-tested SMS OTP extractor. OS SMS Retriever wiring and Play app-hash evidence remain open.
 - Server-authoritative rules now exist as a CI-tested JVM reference core in `android/backend/`, including metadata-only SMS receipts, keyed-hash audit/abuse logging and a loopback-only HTTP adapter (`MP-055`, `MP-057`–`MP-062`, `MP-067`, `MP-069`, `MP-070`, `MP-074`–`MP-078`, `MP-085`, `MP-086`, `MP-094`, `MP-095`). Tests cover code generation, hashed verifiers, expiry, attempts, replay, cooldown, rate limits, scoped idempotency, session rotation/reuse, redaction and real-socket JSON status/error contracts. Audit code is not counted toward `MP-114`/`MP-116` because their prerequisite chain (`MP-113`, `MP-115`) and deployed-runtime gates are unmet.
 - `MP-071` is evidenced by five `SmsFailoverTest` cases: clean pre-handoff failure uses the secondary route with the same request scope; ambiguous failure with a provider id is not retried; secondary handoff metadata is redacted and uses the secondary provider id; secondary failure grants no account or session. This is provider-independent reference-core evidence only, not real `+268` delivery.
@@ -17,7 +19,7 @@
 - `MP-072` is evidenced by `VerificationMessageTemplate` round trips through the extended `SmsOtpExtractor` for English and siSwati, Unicode-safe keyword boundaries, locale fallback and invalid-code rejection. This is a client template/parser contract only: no provider delivery, hosted Edge Function or human-reviewed siSwati copy is claimed.
 - `MP-048` is evidenced by an automated manifest assertion (cleartext disabled, no broad SMS permission) plus `TransportPolicy`/interceptor negative cleartext tests; `MP-103` by `AuthServiceTest.correctCodeVerifiesExactlyOnceThenReplayIsRejected` and the client `CODE_CONSUMED` contract test. Both are `TESTED` from run 52; neither implies a deployed backend or real delivery.
 - These are `TESTED` or `BLOCKED`, never `COMPLETE`: the core and loopback adapter are not deployed, no real SMS delivery exists, and the reconstructed catalogue's prerequisite chains include runtime gates that cannot be satisfied without credentials/funding.
-- Still blocked: backend deployment and RLS verification, SMS provider integration and real `+268` delivery, end-to-end delivered-code registration/sign-in (section 14 items 1–5).
+- Still blocked: hosted migration/Edge Function deployment and runtime RLS verification, production eSMS wallet/sender-ID and real `+268` delivery, end-to-end delivered-code registration/sign-in (section 14 items 1–5), and organization secret visibility restriction (needs `admin:org`).
 - Contract references: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
 
 
@@ -269,8 +271,9 @@ All must be evidenced; none may be inferred from a green compile:
 | Risk / blocker | Impact | Status |
 | --- | --- | --- |
 | Original 600-feature catalogue unavailable | ID/description mapping is provisional | Open — reconstruction awaits review |
-| No Supabase project or credentials | Backend cannot be deployed | BLOCKED — credentials required |
-| SMS provider account/funding | Real `+268` delivery cannot be verified | BLOCKED — approval + credentials required |
+| Supabase keys are available but no hosted deployment path | Migration/RLS/Edge Functions cannot be verified at runtime | BLOCKED — project ref/access token and deployment review required |
+| Organization secret restriction | Visibility metadata cannot be read/changed with current token | BLOCKED — one-time `admin:org` scope refresh required |
+| SMS provider wallet/sender ID | Real `+268` delivery cannot be verified; sandbox passes | BLOCKED — production key, credits and approved sender ID required |
 | eSMS Africa `.io` vs `.com` ambiguity | Wrong provider/API could be selected | Open — clarification required |
 | Two domain eSMS Verify vs Supabase native OTP | Custom auth adds code and review burden | Open — architecture approval required |
 | No Gradle wrapper | Build reproducibility relies on hosted pinned Gradle | Open — remediation proposed |

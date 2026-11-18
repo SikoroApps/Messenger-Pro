@@ -8,7 +8,8 @@ local Android SDK requirement. A passing status is evidence only for what actual
 | Job / task | Suite | Evidence artifact |
 | --- | --- | --- |
 | `verify` → `:app:testDebugUnitTest` | Android JVM unit tests (normalisation, state machine, HTTP/TLS contract, bearer-token scoping, sessions, jittered retry scheduling, localized OTP extraction, redaction) | `messenger-pro-unit-test-results` |
-| `verify` → `:backend:test` | Server-authoritative OTP/session core, bounded device-session records, loopback HTTP contract adapter, SMS receipt rules, keyed-hash audit/abuse logging and shared domain primitives | `messenger-pro-backend-test-results` |
+| `verify` → `:backend:test` | Server-authoritative OTP/session core, bounded device-session records, loopback HTTP contract adapter, SMS receipt rules, keyed-hash audit/abuse logging, eSMS sandbox adapter, provider-managed OTP, Supabase REST adapters and shared domain primitives | `messenger-pro-backend-test-results` |
+| `credentials-probe` | Presence/shape probes for organization secrets, keystore alias, Supabase keys and eSMS sandbox start/check; no values or provider payloads printed | workflow run logs only |
 | `verify` → `:app:lintDebug` | Static analysis | `messenger-pro-lint` |
 | `verify` → `:app:assembleDebug` | Debug APK + package-name assertion | `messenger-pro-debug` |
 | `device-smoke` → `connectedDebugAndroidTest` | API 35 x86_64 emulator with KVM | `messenger-pro-device-test-results` |
@@ -17,12 +18,14 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact code evidence: run 69 `44282658517` on `a48a8d9b9048d1aecdc3d5f6aeabe54fef795579` —
-  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 50 backend JVM tests (including 5
-  `SmsFailoverTest` cases, a bounded device-session record case, atomic consumed-code replay cases,
-  6 `AccountAuthorizationTest` cases, cross-session rejection and metadata-only abuse-redaction
-  cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint 0 errors/11 warnings, debug APK
-  SHA-256 `d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.
+- Latest exact code evidence: run `44337788301` on `df30bffe8feb13db06ed22e307feddd62b81e01a` —
+  57 app JVM tests, 67 backend JVM tests (including 5 `ESmsVerifyGatewayTest` cases, 6
+  `ProviderOtpServiceTest` cases and 6 `SupabaseRestAdapterTest` cases in addition to the earlier
+  reference-core suites), API 35 emulator smoke job green, 0 failures/errors/skips, lint clean,
+  debug APK SHA-256 `9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab`.
+- Credential availability evidence: probe run `44336159672` on `b5d54f9` succeeded. It proves only
+  that secrets are present and usable in sandbox/CI; it does not prove hosted deployment, real
+  SMS delivery or secret visibility restriction. See `docs/CREDENTIALS.md`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -59,8 +62,9 @@ policy or SQL migration. `MP-114` is covered by in-memory audit/abuse tests show
 signals and keyed hashes only (no raw phone, IP, code or message body); it is not proof of a
 deployed telemetry sink or RLS-protected audit endpoint.
 
-Latest code evidence: CI run 69 `44282658517`,
-https://github.com/SikoroApps/Messenger-Pro/actions/runs/44282658517, on
-`a48a8d9b9048d1aecdc3d5f6aeabe54fef795579` — 57 app JVM tests, 50 backend JVM tests, 11 API 35
-emulator tests, lint clean and debug APK SHA-256
-`d58f0031b8888aa2802b1ffe342160079d58a09c9fe34f4e9e989aa1d06562c5`.
+Latest code evidence: CI run `44337788301`,
+https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301, on
+`df30bffe8feb13db06ed22e307feddd62b81e01a` — 57 app JVM tests, 67 backend JVM tests, API 35
+emulator smoke job green, lint clean and debug APK SHA-256
+`9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab`. Credential probe:
+`44336159672`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672.

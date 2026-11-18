@@ -1,8 +1,9 @@
 # Server-authoritative reference core (`:backend`)
 
 This pure-JVM module contains the **rules** for phone-OTP identity, sessions and shared domain
-primitives. It is deliberately free of Android, Supabase and SMS-provider dependencies so that
-the security-critical behaviour can be exercised in GitHub Actions without credentials.
+primitives, plus credential-aware adapters behind injectable HTTP transports. It has no Android
+SDK dependency, so the security-critical behaviour can be exercised in GitHub Actions without a
+local emulator or provider account.
 
 ## What is implemented and tested here
 
@@ -23,6 +24,14 @@ the security-critical behaviour can be exercised in GitHub Actions without crede
   It is explicitly not a hosted TLS deployment.
 - `server/Audit.kt` — keyed-hash audit records and generic abuse signals for auth transitions;
   no phone number, OTP, token, request id or provider message is written to the logs.
+- `server/ESmsVerify.kt` — pinned HTTPS eSMS Verify adapter, mandatory `esms_test_` sandbox key,
+  stable status mapping, `Idempotency-Key`, injected transport and generic errors that never echo
+  provider prose, codes or keys.
+- `server/ProviderOtp.kt` — provider-managed OTP state machine. The plaintext code goes from the
+  client to the provider check call only; no code or hash is stored locally, and tokens are issued
+  only after an approved check and an atomic consume.
+- `server/Supabase.kt` — server/CI-only PostgREST repositories for accounts, provider OTP records
+  and sessions, with host pinning, `apikey` header handling and generic status-derived failures.
 - `domain/` — consent-gated, hash-only contact matching, message idempotency/pagination, media
   validation and account-control policy models used by later batches.
 
