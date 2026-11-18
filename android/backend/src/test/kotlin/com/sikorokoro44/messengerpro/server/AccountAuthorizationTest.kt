@@ -146,9 +146,19 @@ class AccountAuthorizationTest {
         val b = verify(r, "+26876123457")
         val accountB = r.h.accounts.findById(r.h.sessions.findById(b.sessionId)!!.accountId)!!
 
-        val missingOwnRow = authorizationFailureOf { r.h.service.readOwnAccount(a.refreshToken, "id-missing") }
+        // Ownership is checked before lookup, so a session-derived caller always receives the
+        // same denial for any id other than its own, whether or not that row exists.
         val crossAccountExisting = authorizationFailureOf { r.h.service.readOwnAccount(a.refreshToken, accountB.id) }
         val crossAccountMissing = authorizationFailureOf { r.h.service.readOwnAccount(a.refreshToken, "id-also-missing") }
+
+        // A live session whose account row has been removed is the only path to NOT_FOUND.
+        val now = r.clock.nowMillis()
+        val orphanSession = Session("orphan-session", "orphan-account", "orphan-hash", now + 60_000L, now)
+        r.h.sessions.save(orphanSession)
+        val guard = AuthorizedAccountAccess(r.h.accounts, r.h.sessions, r.clock)
+        val missingOwnRow = authorizationFailureOf {
+            guard.read(CallerPrincipal(orphanSession.accountId, orphanSession.id), orphanSession.accountId)
+        }
 
         assertEquals(AccountAuthorizationFailure.ACCOUNT_NOT_FOUND, missingOwnRow)
         assertEquals(AccountAuthorizationFailure.CROSS_ACCOUNT_DENIED, crossAccountExisting)
