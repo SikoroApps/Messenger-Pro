@@ -64,5 +64,11 @@ A batch is not complete merely because files or registry rows exist. Record comm
 - Debug APK: artifact `messenger-pro-debug`, `app-debug.apk`, SHA-256 `a3136b94aed85deee07ab77e8c8687635f02b39fa634a2918e657e9efd2f46ff`. Package name verified from the built APK with `aapt dump badging`.
 - Secret review: no credentials, signing keys, provider secrets or tokens in tracked files or any of the 20 pre-existing commits.
 - Documentation: README, BUILD_ORDER, ARCHITECTURE, SECURITY and features/README are present.
-- Known limitations: the authoritative 600-feature catalogue and an implementation-status file are not present in this repository, so no MP feature is marked COMPLETE; CI uses hosted Gradle 8.9 because no wrapper is committed; `.github/workflows/android-release.yml` is untracked local work and belongs to Batch 7; no backend, SMS provider or authentication implementation exists yet.
-- Next permitted batch: none yet. Batch 2 — Identity and phone OTP is BLOCKED until the authoritative catalogue is supplied and its prerequisite IDs are mapped.
+- Known limitations: the authoritative 600-feature catalogue and an implementation-status file are still not present in this repository, so no MP feature is marked COMPLETE; CI uses hosted Gradle 8.9 because no wrapper is committed; `.github/workflows/android-release.yml` is untracked local work and belongs to Batch 7; no backend, SMS provider or authentication implementation exists yet.
+- Next permitted batch: Batch 2 — Identity, Backend & Core Security. Dependency mapping is recorded in `docs/BATCH_2_PLAN.md` using the explicitly labelled **RECONSTRUCTED — NOT ORIGINAL** catalogue proposal (`features/feature-catalogue.json`, `features/feature-catalogue.md`). Implementation remains BLOCKED until the reconstruction is reviewed and backend/SMS credentials are available.
+
+### Batch 2 — Identity, Backend & Core Security: PLANNING (not started)
+- Prerequisite: Batch 1 COMPLETE and re-verified on HEAD `e68344b5f76e08f7f18d8cea176cc62b785b8a8c` (CI run 13, success).
+- Feature IDs (reconstructed): `MP-041`–`MP-120`; status of every feature: NOT_STARTED.
+- Plan: `docs/BATCH_2_PLAN.md` (dependency graph, backend/auth/SMS architecture, OTP lifecycle, database, API contracts, threat review, tests, CI, exit criteria, risks).
+- Exit gate: unchanged; no Batch 2 feature may be marked COMPLETE without the evidence required in section 14 of the plan.

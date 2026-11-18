@@ -16,10 +16,12 @@ See:
 - [Build order and batch gates](docs/BUILD_ORDER.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security baseline](docs/SECURITY.md)
+- [Batch 2 plan](docs/BATCH_2_PLAN.md)
 - [Feature registry policy](features/README.md)
+- [Reconstructed feature catalogue (NOT ORIGINAL)](features/feature-catalogue.md)
 
 ## Current status
-The repository has been created and the initial Android foundation is being established. No production authentication provider, SMS delivery integration, or device-verified release is claimed until implemented and tested with evidence.
+Batch 1 (foundation) is COMPLETE with verified CI, unit tests, lint, emulator launch test and APK evidence on commit `e68344b5f76e08f7f18d8cea176cc62b785b8a8c`. Batch 2 (identity, backend and core security) is in PLANNING: its dependency map and provider evaluation are in `docs/BATCH_2_PLAN.md`, but no backend, SMS integration or authentication feature is implemented. The authoritative 600-feature catalogue was not found; the published catalogue is an explicitly labelled reconstruction awaiting review, and no feature is marked COMPLETE. No production authentication provider, SMS delivery integration, or device-verified release is claimed until implemented and tested with evidence.
 
 ## Build
 The Android project is under `android/`. CI runs unit tests and assembles a debug APK on GitHub-hosted runners.

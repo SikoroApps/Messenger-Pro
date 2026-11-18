@@ -18,3 +18,6 @@ The account identifier is a normalized E.164 phone number. OTP issuance and veri
 
 ## Backend decision gate
 No legacy backend URL, project, API key, or provider secret is assumed. Select and document a fresh backend and SMS delivery arrangement before Batch 2. A public client key may be shipped only when the backend's authorization model makes it safe; service-role credentials must remain server-side.
+
+## Batch 2 planned design (NOT IMPLEMENTED)
+The evaluated design in `docs/BATCH_2_PLAN.md` is Supabase Postgres with RLS plus Edge Functions for a custom, server-authoritative phone-OTP flow. This is proposed because the preferred `+268` SMS provider (eSMS Africa, `esmsafrica.io`) is not a native Supabase Auth SMS provider; Supabase Auth's built-in phone login supports only MessageBird, Twilio, Vonage and TextLocal. Android will hold only a public key, generate no OTP, and never accept OTP success without a server-issued session. Provider keys and the service-role key remain in Edge Function secrets. An SMS gateway interface with sandbox, eSMS Verify and Lunyazi adapters keeps the OTP state machine provider-independent. Dev and prod projects are separate. All of this is planning only until deployed and verified in GitHub Actions.
