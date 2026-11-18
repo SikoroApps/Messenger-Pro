@@ -58,6 +58,11 @@ allowlist. It is installed as an OkHttp network interceptor so redirects are re-
 the header is attached. Client tests cover allowlisted attachment, stripping on unrelated hosts,
 cleartext rejection and redirect leakage.
 
+Account reads and writes are exposed only through session-derived callers: the target account id
+must match the account that owns the live session. Ownership is checked before row lookup, so a
+cross-account denial is identical whether or not the target row exists. This is a reference-core
+authorization contract (`AuthorizedAccountAccess`); deployed RLS must enforce the same rule in SQL.
+
 Verification responses return a `session_id`, and the verify endpoint accepts an optional
 `device_label`. `DeviceLabelPolicy` trims the label, removes control characters and angle brackets,
 collapses whitespace and caps it at 64 characters before it is stored on the session record; the

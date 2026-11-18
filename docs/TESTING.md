@@ -17,11 +17,12 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact code evidence: run 63 `44275896011` on `d1181d8a0b7bd11c39515012be30e4fd19e1bba2` —
-  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 42 backend JVM tests (including 5
-  `SmsFailoverTest` cases, a bounded device-session record case and atomic consumed-code replay
-  cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint 0 errors/11 warnings, debug APK
-  SHA-256 `5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
+- Latest exact code evidence: run 66 `44279051934` on `9de1861a9752bb69da95064ec1133bb8d33b9ade` —
+  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 48 backend JVM tests (including 5
+  `SmsFailoverTest` cases, a bounded device-session record case, atomic consumed-code replay cases
+  and 6 `AccountAuthorizationTest` cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint
+  0 errors/11 warnings, debug APK SHA-256
+  `569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -50,9 +51,11 @@ human-reviewed siSwati copy is evidenced. `MP-095` is covered by a loopback test
 bounded device-label creation and rotation continuity; it is not proof of Supabase/RLS persistence
 or a device-control UI. `MP-079` is covered by atomic `OtpRepository.consume` tests and a replay
 after session revocation; it is not proof of a deployed Edge Function or durable SQL consume.
+`MP-113` is covered by cross-account negative authorization tests against a session-derived
+caller; it is not proof of a deployed Supabase RLS policy or SQL migration.
 
-Latest code evidence: CI run 63 `44275896011`,
-https://github.com/SikoroApps/Messenger-Pro/actions/runs/44275896011, on
-`d1181d8a0b7bd11c39515012be30e4fd19e1bba2` — 57 app JVM tests, 42 backend JVM tests, 11 API 35
+Latest code evidence: CI run 66 `44279051934`,
+https://github.com/SikoroApps/Messenger-Pro/actions/runs/44279051934, on
+`9de1861a9752bb69da95064ec1133bb8d33b9ade` — 57 app JVM tests, 48 backend JVM tests, 11 API 35
 emulator tests, lint clean and debug APK SHA-256
-`5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
+`569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.

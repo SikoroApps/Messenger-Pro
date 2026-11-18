@@ -3,6 +3,9 @@
 - Never commit API secrets, service-role keys, signing keystores, passwords, OTPs, private keys, or production user data.
 - Keep public configuration separate from secrets. CI secrets are injected only at job runtime.
 - Enforce authorization on the server for every user-owned object; client-side checks are not security boundaries.
+  Derive the caller from a verified session, check ownership before looking up a row, and return
+  one constant denial so an attacker cannot enumerate account ids. `AuthorizedAccountAccess` is a
+  testable reference model only; deployed RLS must enforce the same rule in SQL.
 - Apply per-number, per-IP, and global OTP request limits; use resend cooldowns and abuse monitoring.
 - OTPs are single-use, expire quickly, are not logged, and are stored server-side as a keyed hash/verifier.
 - Avoid account enumeration: authentication responses should not reveal whether a phone number is registered.

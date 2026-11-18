@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `d1181d8a0b7bd11c39515012be30e4fd19e1bba2`.
-Android CI run 63 `44275896011`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44275896011 — **success on the exact HEAD**, both jobs green. All test counts and checksums below refer to run 63.
+Branch `main`, verified HEAD `9de1861a9752bb69da95064ec1133bb8d33b9ade`.
+Android CI run 66 `44279051934`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44279051934 — **success on the exact HEAD**, both jobs green. All test counts and checksums below refer to run 66.
 
 - JVM unit tests (`:app:testDebugUnitTest`): 57 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
-- Server-authoritative core tests (`:backend:test`): 42 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
+- Server-authoritative core tests (`:backend:test`): 48 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator tests (API 35, KVM x86_64): 11 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -27,7 +27,8 @@ Android CI run 63 `44275896011`, https://github.com/SikoroApps/Messenger-Pro/act
 - Added `VerificationMessageTemplate` with locale-tagged English and siSwati short OTP copy and extended `SmsOtpExtractor` with Unicode-safe keyword boundaries, locale fallback and configurable keyword lists. Four additional `SmsOtpExtractorTest` cases pass in run 58; `MP-072` is `TESTED` as a client template/parser contract only, with no delivered-message or human copy-review evidence.
 - Added bounded, sanitized optional device labels to reference-core session records. Verify and refresh responses now expose a session id, and a real loopback HTTP test proves a label is recorded, capped at 64 characters, preserved across rotation and not logged. `MP-095` is `TESTED` from run 60; no Supabase/RLS persistence or device-control UI is claimed.
 - Strengthened consumed-code replay evidence: `OtpRecord.consumedAt` plus the atomic `OtpRepository.consume` contract are now covered by tests proving a consumed code cannot open a new session even after the original session is revoked. `MP-079` is `TESTED` from run 63; no deployed Edge Function or durable SQL consume is claimed. Run 62 failed on a wrong assumption that logout deletes session records; `d1181d8` corrected the test to assert revocation and no additional session.
-- Advanced `MP-091`, `MP-097` and `MP-079` to `TESTED` from runs 47, 50 and 63, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 54 rows are now `TESTED` and no row was marked `COMPLETE`.
+- Added `AuthorizedAccountAccess`, a reference-core model of the RLS row-ownership rule: caller identity is re-derived from a live session, ownership is checked before row lookup, cross-account reads/writes are denied with non-enumerating messages, and display names are bounded and sanitized. `AccountAuthorizationTest` (6 cases) passes in run 66 and `MP-113` is `TESTED` as reference-core evidence only; no deployed Supabase RLS policy is claimed. Run 65 failed on an incorrect expectation that the service path can reveal NOT_FOUND; `9de1861` corrected the test.
+- Advanced `MP-091`, `MP-097`, `MP-079` and `MP-113` to `TESTED` from runs 47, 50, 63 and 66, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 55 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note

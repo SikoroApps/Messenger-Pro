@@ -1994,13 +1994,13 @@
         "MP-040",
         "MP-112"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/AccountAuthorization.kt (reference-core ownership guard); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference-core ownership contract implemented and CI-tested; deployed Supabase RLS policy still required and not configured.",
       "security_impact": "high: broken RLS exposes all accounts",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: cross-account negative authorization test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 66 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44279051934 success on 9de1861a9752bb69da95064ec1133bb8d33b9ade: 57 app JVM tests, 48 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 569b837dff0d3703f08cf5800c0b39a75b08c5a547020799247ef42853b32bba. AccountAuthorizationTest (6 cases) proves an account cannot read or modify another account's row, a hand-built principal cannot pair a victim account id with an attacker's session, revoked and unauthenticated sessions are rejected before row access, ownership is checked before existence so denials do not reveal rows, and display names are bounded/sanitized. This is a reference-core model of the RLS ownership rule ONLY: it is not a database security boundary and no deployed Supabase RLS policy, SQL migration or hosted endpoint is evidenced.",
+      "blocker": "Supabase project, backend credentials, deployed RLS policies, SQL migrations and Edge Function authorization are not configured; real cross-account RLS enforcement remains unverified."
     },
     {
       "feature_id": "MP-114",

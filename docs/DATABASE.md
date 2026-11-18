@@ -22,6 +22,10 @@ the same semantics for CI.
   the replacement session is created. Reuse revokes all sessions for the account.
 - Rate-limit subjects are keyed hashes of phone/IP, never raw personal data.
 - RLS is enabled on every table. OTP, rate-limit and delivery tables have no client policy.
+- Account rows are readable and writable only by their owning account. The reference-core
+  `AuthorizedAccountAccess` model re-derives ownership from a live server-side session and checks
+  it before the row lookup, so denials do not reveal whether a row exists. A deployed Supabase RLS
+  policy must implement the same ownership rule; the Kotlin guard is not a database boundary.
 - All schema changes are reviewed, numbered SQL migrations in `supabase/migrations/`.
 
 None of the above is evidenced as deployed. See `docs/BUILD_ORDER.md` for the exit gate.
