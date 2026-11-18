@@ -77,6 +77,35 @@ class AuditTest {
     }
 
     @Test
+    fun rateLimitAndCooldownAbuseEventsStayMetadataOnly() {
+        val phone = "+26876123456"
+        val cooldownHarness = AuthServiceFactory.inMemory(
+            config().copy(cooldownMs = 60_000L), FakeClock(), RecordingSmsGateway())
+        cooldownHarness.service.requestOtp(phone, "ip-hash")
+        assertFails(AuthFailure.COOLDOWN_ACTIVE) {
+            cooldownHarness.service.requestOtp(phone, "ip-hash-2")
+        }
+
+        val rateHarness = AuthServiceFactory.inMemory(
+            config().copy(cooldownMs = 0L, perPhoneLimit = 2), FakeClock(), RecordingSmsGateway())
+        rateHarness.service.requestOtp(phone, "ip-hash")
+        rateHarness.service.requestOtp(phone, "ip-hash")
+        assertFails(AuthFailure.RATE_LIMITED) {
+            rateHarness.service.requestOtp(phone, "ip-hash")
+        }
+
+        for (h in listOf(cooldownHarness, rateHarness)) {
+            val signals = h.abuseLog.all().map { it.signal }
+            assertTrue(AbuseSignal.OTP_REQUEST_BURST in signals)
+            val dump = h.abuseLog.all().toString()
+            assertFalse(dump.contains(phone))
+            assertFalse(dump.contains("ip-hash"))
+            assertTrue(h.abuseLog.all().all { it.subjectHash.length == 64 })
+        }
+        assertTrue(AbuseSignal.RATE_LIMIT_HIT in rateHarness.abuseLog.all().map { it.signal })
+    }
+
+    @Test
     fun replayedCodeAndReusedRefreshTokenAreRecordedAsAbuseSignals() {
         val sms = RecordingSmsGateway()
         val h = harness(sms = sms)

@@ -164,6 +164,34 @@ class AuthServiceTest {
     }
 
     @Test
+    fun codeFromAPreviousSessionCannotOpenANewSessionForTheSamePhone() {
+        val clock = FakeClock()
+        val sms = RecordingSmsGateway()
+        val h = rig(clock, sms)
+        val phone = "+26876123456"
+
+        val firstRequest = h.service.requestOtp(phone, "ip-hash")
+        val firstCode = sms.lastCode!!
+        val firstSession = h.service.verifyOtp(phone, firstRequest.requestId, firstCode)
+
+        clock.advance(60_001L)
+        val secondRequest = h.service.requestOtp(phone, "ip-hash")
+        val secondCode = sms.lastCode!!
+        assertNotEquals(firstRequest.requestId, secondRequest.requestId)
+        assertNotEquals(firstCode, secondCode)
+
+        assertEquals(AuthFailure.INVALID_CODE, failureOf {
+            h.service.verifyOtp(phone, secondRequest.requestId, firstCode)
+        })
+        assertEquals(1, h.sessions.count())
+
+        val secondSession = h.service.verifyOtp(phone, secondRequest.requestId, secondCode)
+        assertNotEquals(firstSession.tokens.sessionId, secondSession.tokens.sessionId)
+        assertEquals(2, h.sessions.count())
+        assertEquals(1, h.accounts.count())
+    }
+
+    @Test
     fun expiredAndInvalidCodesAreRejected() {
         val clock = FakeClock()
         val sms = RecordingSmsGateway()
