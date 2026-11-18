@@ -10,12 +10,18 @@ package com.sikorokoro44.messengerpro.data.auth
  */
 object SmsOtpExtractor {
     private val codePattern = Regex("""(?<!\d)(\d{6})(?!\d)""")
-    private val verificationKeyword = Regex("""\b(code|verification|verify|otp)\b""", RegexOption.IGNORE_CASE)
+    private val defaultKeywords = VerificationLocale.entries
+        .flatMap { VerificationMessageTemplate.keywordsFor(it).asSequence() }
+        .toSet()
 
-    fun extract(message: String?, expectedAppHash: String? = null): String? {
+    fun extract(
+        message: String?,
+        expectedAppHash: String? = null,
+        keywords: Collection<String> = defaultKeywords,
+    ): String? {
         if (message.isNullOrBlank()) return null
         val trimmed = message.trim()
-        if (!verificationKeyword.containsMatchIn(trimmed)) return null
+        if (!keywordPattern(keywords).containsMatchIn(trimmed)) return null
 
         if (!expectedAppHash.isNullOrBlank() && !trimmed.endsWith(expectedAppHash)) return null
 
@@ -23,5 +29,16 @@ object SmsOtpExtractor {
             .map { it.value }
             .toSet()
         return candidates.singleOrNull()
+    }
+
+    /** Uses letter boundaries rather than `\b` so accented localized phrases still match. */
+    private fun keywordPattern(keywords: Collection<String>): Regex {
+        val alternatives = keywords
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .joinToString("|") { "(?<!\\p{L})${Regex.escape(it)}(?!\\p{L})" }
+        require(alternatives.isNotEmpty()) { "At least one verification keyword is required" }
+        return Regex(alternatives, RegexOption.IGNORE_CASE)
     }
 }
