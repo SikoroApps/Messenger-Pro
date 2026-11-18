@@ -5,6 +5,8 @@ import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.net.URI
@@ -22,6 +24,7 @@ import java.nio.charset.StandardCharsets
 class ProviderAuthHttpTest {
     private companion object {
         const val PHONE = "+26876123456"
+        const val UNKNOWN_PHONE = "+26876199999"
         const val CODE = "739184"
         const val WRONG_CODE = "482193"
         const val ESMS_KEY = "esms_test_http_fixture"
@@ -437,6 +440,95 @@ class ProviderAuthHttpTest {
             assertTrue(r.backend.otps.isEmpty())
             assertTrue(r.backend.accounts.isEmpty())
             assertTrue(r.backend.sessions.isEmpty())
+        }
+    }
+
+    @Test
+    fun accountIsCreatedOnlyAfterVerifiedOtpAndCarriesTheContractFields() {
+        rig().use { r ->
+            assertTrue(r.backend.accounts.isEmpty())
+            val requestId = requestIdOf(r.post("/auth/otp/request", otpRequestJson(), "http-idem-account-1"))
+            assertTrue(r.backend.accounts.isEmpty())
+
+            val wrong = r.post("/auth/otp/verify", verifyJson(PHONE, requestId, WRONG_CODE))
+            assertEquals(400, wrong.statusCode())
+            assertTrue(r.backend.accounts.isEmpty())
+
+            val verified = r.post("/auth/otp/verify", verifyJson(PHONE, requestId, CODE))
+            assertEquals(200, verified.statusCode())
+            assertEquals("active", JSONObject(verified.body()).getString("account_state"))
+            assertEquals(1, r.backend.accounts.size)
+            val account = r.backend.accounts.values.single()
+            assertEquals(PHONE, account["phone_e164"])
+            assertEquals("active", account["state"])
+            assertNotNull(account["created_at"])
+            assertNotNull(account["id"])
+            assertNull(account["display_name"])
+        }
+    }
+
+    @Test
+    fun repeatedVerificationReusesTheExistingAccountAndCreatesASeparateSession() {
+        rig().use { r ->
+            fun completeSignIn(idempotencyKey: String): JSONObject {
+                val requestId = requestIdOf(r.post("/auth/otp/request", otpRequestJson(), idempotencyKey))
+                val response = r.post("/auth/otp/verify", verifyJson(PHONE, requestId, CODE))
+                assertEquals(200, response.statusCode())
+                return JSONObject(response.body())
+            }
+
+            val first = completeSignIn("http-idem-dupe-1")
+            val firstAccountId = r.backend.sessions[first.getString("session_id")]!!["account_id"]
+            val second = completeSignIn("http-idem-dupe-2")
+            val secondAccountId = r.backend.sessions[second.getString("session_id")]!!["account_id"]
+
+            assertEquals(firstAccountId, secondAccountId)
+            assertEquals(1, r.backend.accounts.size)
+            assertEquals(2, r.backend.sessions.size)
+            assertEquals(
+                2,
+                r.backend.requests.count { it.url.endsWith("/rest/v1/rpc/mp_upsert_account") },
+            )
+        }
+    }
+
+    @Test
+    fun knownAndUnknownNumbersHaveTheSamePublicAuthResponses() {
+        rig().use { r ->
+            val knownRequestId = requestIdOf(r.post("/auth/otp/request", otpRequestJson(), "http-idem-known"))
+            val knownVerify = r.post("/auth/otp/verify", verifyJson(PHONE, knownRequestId, CODE))
+            assertEquals(200, knownVerify.statusCode())
+
+            val known = r.post("/auth/otp/request", otpRequestJson(PHONE), "http-idem-known-2")
+            val unknown = r.post("/auth/otp/request", otpRequestJson(UNKNOWN_PHONE), "http-idem-unknown")
+            assertEquals(200, known.statusCode())
+            assertEquals(200, unknown.statusCode())
+            val knownBody = JSONObject(known.body())
+            val unknownBody = JSONObject(unknown.body())
+            assertEquals(setOf("request_id", "expires_in", "retry_after"), knownBody.keySet())
+            assertEquals(knownBody.keySet(), unknownBody.keySet())
+            assertEquals(knownBody.getLong("expires_in"), unknownBody.getLong("expires_in"))
+            assertEquals(knownBody.getLong("retry_after"), unknownBody.getLong("retry_after"))
+            assertFalse(known.body().contains(PHONE))
+            assertFalse(unknown.body().contains(UNKNOWN_PHONE))
+
+            val knownFailure = r.post(
+                "/auth/otp/verify",
+                verifyJson(PHONE, knownBody.getString("request_id"), WRONG_CODE),
+            )
+            val unknownFailure = r.post(
+                "/auth/otp/verify",
+                verifyJson(UNKNOWN_PHONE, "does-not-exist", WRONG_CODE),
+            )
+            assertEquals(400, knownFailure.statusCode())
+            assertEquals(400, unknownFailure.statusCode())
+            assertEquals(
+                JSONObject(knownFailure.body()).getString("message"),
+                JSONObject(unknownFailure.body()).getString("message"),
+            )
+            assertFalse(knownFailure.body().contains(PHONE))
+            assertFalse(unknownFailure.body().contains(UNKNOWN_PHONE))
+            assertFalse(knownFailure.body().contains(CODE))
         }
     }
 }

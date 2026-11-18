@@ -1,0 +1,104 @@
+name: Supabase migration deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type DEPLOY-IDENTITY-0001 to apply reviewed migrations
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-migration-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Apply reviewed identity migration and verify RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_YES: 'true'
+      CONFIRMATION: ${{ github.event.inputs.confirmation }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Guard deployment inputs and credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          fail() { echo "Deployment guard failed: $1" >&2; exit 1; }
+          [[ "$CONFIRMATION" == "DEPLOY-IDENTITY-0001" ]] || \
+            fail "workflow confirmation did not match the reviewed migration token"
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF SUPABASE_DB_PASSWORD; do
+            [[ -n "${!name:-}" ]] || fail "$name is not available to this workflow"
+          done
+          [[ "$SUPABASE_PROJECT_REF" =~ ^[a-z]{20}$ ]] || fail "SUPABASE_PROJECT_REF has an unexpected shape"
+          echo "Deployment guard passed; credential values were not printed."
+
+      - name: Verify Supabase management access
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl --silent --show-error --location --max-time 30 \
+            --output /dev/null --write-out '%{http_code}' \
+            --header "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF")"
+          [[ "$status" == "200" ]] || { echo "Management API status $status" >&2; exit 1; }
+          echo "Management API accepted the deployment credentials."
+
+      - name: Install Supabase CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global supabase@2
+          supabase --version
+
+      - name: Link project and inspect pending migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" > /dev/null
+          supabase db push --dry-run
+
+      - name: Apply reviewed migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase db push
+
+      - name: Verify deployed schema and deny-by-default RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          sql="select
+            (select count(*)::int from information_schema.tables
+              where table_schema = 'public' and table_name in
+              ('accounts','otp_requests','provider_otp_requests','sessions',
+               'consumed_refresh_tokens','rate_limit_events','sms_delivery_events','audit_events')) as expected_tables,
+            (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+              where n.nspname = 'public' and c.relrowsecurity and c.relname in
+              ('accounts','otp_requests','provider_otp_requests','sessions',
+               'consumed_refresh_tokens','rate_limit_events','sms_delivery_events','audit_events')) as rls_tables,
+            (select count(*)::int from pg_policies
+              where schemaname = 'public' and tablename in
+              ('accounts','otp_requests','provider_otp_requests','sessions',
+               'consumed_refresh_tokens','rate_limit_events','sms_delivery_events','audit_events')) as client_policies,
+            (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+              where n.nspname = 'public' and p.proname = 'mp_upsert_account') as upsert_functions;"
+          supabase db query "$sql" --output csv --read-only > "$RUNNER_TEMP/rls-verification.csv"
+          cat "$RUNNER_TEMP/rls-verification.csv"
+          row="$(tail -n 1 "$RUNNER_TEMP/rls-verification.csv")"
+          IFS=',' read -r expected_tables rls_tables client_policies upsert_functions <<< "$row"
+          [[ "$expected_tables" == "8" ]] || { echo "Expected eight identity tables" >&2; exit 1; }
+          [[ "$rls_tables" == "8" ]] || { echo "Not every identity table has RLS enabled" >&2; exit 1; }
+          [[ "$client_policies" == "0" ]] || { echo "Unexpected client policy on a service-only table" >&2; exit 1; }
+          [[ "$upsert_functions" == "1" ]] || { echo "mp_upsert_account function is missing" >&2; exit 1; }
+          echo "Deployed schema and deny-by-default RLS verified."

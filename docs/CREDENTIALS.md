@@ -48,3 +48,21 @@ gh auth refresh -h github.com -s admin:org
 
 After that refresh, organization secret visibility can be set to `selected` with Messenger-Pro
 as the only repository. No secret value needs to be revealed.
+
+## Deployment credential availability
+
+Re-probed run: `44374465003`
+(https://github.com/SikoroApps/Messenger-Pro/actions/runs/44374465003), success on commit
+`a172562`. The probe now checks optional deployment credentials without printing values.
+
+- All eight original runtime secrets remain visible and valid.
+- `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF` and `SUPABASE_DB_PASSWORD` are **not available**
+  to Messenger-Pro workflows. A partial configuration fails the probe; no partial configuration
+  was detected.
+- Therefore no hosted migration, RLS verification or Edge Function deployment has been attempted.
+
+To enable the gated migration workflow, create those three organization secrets and grant them to
+Messenger-Pro, then dispatch `.github/workflows/supabase-migration.yml` with confirmation value
+`DEPLOY-IDENTITY-0001`. The workflow performs a dry run, applies reviewed migrations, and then
+verifies that all eight identity tables exist, all have RLS enabled, no client policy exists, and
+`mp_upsert_account` is present. It does not deploy Edge Functions or send SMS.

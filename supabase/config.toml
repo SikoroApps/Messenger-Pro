@@ -1,0 +1,3 @@
+# Minimal CLI configuration for the reviewed identity migration. Deployment uses a project ref
+# and credentials injected by GitHub Actions; no project-specific secret is stored here.
+project_id = "messenger-pro"
