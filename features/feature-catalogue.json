@@ -1709,10 +1709,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "medium: aggressive retries can trigger abuse limits",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: backoff scheduling unit tests",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 50 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44261505452 success on 9c5146a47c846f9d4a0fe0bdce59ae982d414bd5: 52 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, lint clean, debug APK SHA-256 884cc34b0f09ec308c289e12b6435aa343185a0e8bcfcb845042719fbd7db8b3. TransportAndInputTest.retryPolicyUsesBoundedJitteredBackoffAndIdempotencyGate verifies the doubling window, bounded deterministic jitter, hard attempt cap and rejection of non-transient or non-idempotent retries; fullJitterStaysInsideTheConfiguredWindow verifies seeded jitter stays within the cap and varies; retryBudgetIsHardCapped verifies the total-call ceiling.",
+      "blocker": "Network-layer policy evidence only: no runtime retry executor integration, hosted backend or real SMS delivery is implied."
     },
     {
       "feature_id": "MP-098",

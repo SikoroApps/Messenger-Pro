@@ -2,7 +2,7 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Verified HEAD: `2699b59f21b8b16c2b53355d546a271705f71408` — `test: use compatible Compose node lookup for identity invariant`.
+- Verified HEAD: `9c5146a47c846f9d4a0fe0bdce59ae982d414bd5` — `feat: add bounded jittered retry backoff`.
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
@@ -11,6 +11,7 @@
 - Batch 2 client boundary implemented and CI-tested through run 19, then a server-authoritative reference core added in `android/backend/` (commits `c7a528c`, `2a76f5b`, `eb9d991`).
 - Metadata-only SMS delivery receipt core added and verified in run 31 (`d295336`); loopback HTTP adapter, scoped idempotency, client error mapping and host allowlist added and verified in run 32 (`6c25411`); SMS OTP message extractor added and verified in run 35 (`cda3bc0`); keyed-hash auth audit and generic abuse signals added and verified in run 38 (`763b13a`, `25ba0e5`).
 - Access tokens are now stripped from unrelated requests and attached only to allowlisted HTTPS hosts, including redirects; `MP-091` is `TESTED` from run 47. Runs 41–45 failed on emulator-job test/compile regressions in the new Compose and redirect tests and were resolved through `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6` and `2699b59`.
+- Bounded jittered exponential backoff and an explicit transient/idempotent retry gate were added to `RetryPolicy`; `MP-097` is `TESTED` from run 50. Runs 48–49 were documentation-only runs cancelled by the branch concurrency rule before the code run; run 50 is green on the exact HEAD.
 - CI baseline repaired after the TLS/HTTP transport commit: `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
 - Shared domain primitives for later batches (privacy, messaging, media, account controls) implemented with JVM tests.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
@@ -28,9 +29,11 @@
 | 41–45 / various | various | failure | emulator-job regressions while adding host-scoped bearer tokens and phone-only UI assertions (Compose imports/API, redirect test wiring, repeated `setContent` and unavailable `printToString`); corrected in `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6`, `2699b59` |
 | 46 / `44259092033` | `31917b6` | success | 50 app JVM tests, 34 backend JVM tests, 11 emulator tests, lint, debug APK |
 | 47 / `44259910664` | `2699b59` | success | 50 app JVM tests, 34 backend JVM tests, 11 emulator tests, lint, debug APK |
+| 48–49 / `44261135410`, `44261194479` | `e954378`, `9fe8e2b` | cancelled | documentation-only pushes superseded by the branch concurrency rule; no code evidence from these runs |
+| 50 / `44261505452` | `9c5146a` | success | 52 app JVM tests, 34 backend JVM tests, 11 emulator tests, lint, debug APK |
 
-Latest evidence is run 47 on the exact HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14407049073`, `14408090686`, `14406979304`, `14407468419`, `14407398550` respectively).
-Latest debug APK SHA-256: `6e03e6b59cd809f933d9812cf2826a2258d37933d1a9b2bc705bd709b116e75f`.
+Latest evidence is run 50 on the exact HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14407869600`, `14408009210`, `14407859986`, `14407924494`, `14407534882` respectively).
+Latest debug APK SHA-256: `884cc34b0f09ec308c289e12b6435aa343185a0e8bcfcb845042719fbd7db8b3`.
 
 ## Exact blockers
 1. No Supabase project or credentials → no deployed schema/RLS/Edge Functions; server-authorised behaviour cannot be verified at runtime.

@@ -54,6 +54,13 @@ allowlist. It is installed as an OkHttp network interceptor so redirects are re-
 the header is attached. Client tests cover allowlisted attachment, stripping on unrelated hosts,
 cleartext rejection and redirect leakage.
 
+Client-side retry is deliberately narrow: `RetryPolicy` retries only transient failures of
+idempotent work, applies full jitter within a bounded exponential window (maximum delay 8 s,
+at most 3 attempts), and `RetryBudget` caps total network calls for a sign-in attempt. Unit tests
+verify the doubling window, seeded jitter bounds, the transient/idempotent gate and the hard call
+ceiling. This is a transport-policy control, not a deployed retry executor or a substitute for
+server-side rate limits.
+
 ## Not yet deployed
 
 These contracts are implemented in code and unit-tested, including real loopback HTTP socket tests,
