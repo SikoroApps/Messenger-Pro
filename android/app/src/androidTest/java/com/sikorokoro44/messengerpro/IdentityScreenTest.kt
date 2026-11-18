@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
@@ -138,6 +139,45 @@ class IdentityScreenTest {
         composeRule.onNodeWithTag("code_input").performTextInput("48a2-9 13")
         composeRule.onNodeWithTag("code_input").assertTextContains("482913")
         composeRule.onNodeWithText("Verify code").assertIsEnabled()
+    }
+
+    @Test
+    fun phoneOnlyIdentityScreensHaveNoEmailOrPasswordControls() {
+        composeRule.setContent {
+            MaterialTheme {
+                PhoneEntryScreen(
+                    phoneInput = "",
+                    onPhoneInputChange = {},
+                    selectedCountry = Countries.default,
+                    onCountrySelected = {},
+                    validationMessage = null,
+                    errorMessage = null,
+                    isBusy = false,
+                    onSubmit = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("phone_input").assertIsDisplayed()
+        composeRule.onNodeWithText("email", substring = true, ignoreCase = true).assertDoesNotExist()
+        composeRule.onNodeWithText("password", substring = true, ignoreCase = true).assertDoesNotExist()
+
+        composeRule.setContent {
+            MaterialTheme {
+                OtpEntryScreen(
+                    redactedPhone = "+•••••••3456",
+                    codeInput = "",
+                    onCodeInputChange = {},
+                    retryAfterSeconds = 0L,
+                    errorMessage = null,
+                    isBusy = false,
+                    onVerify = {},
+                    onResend = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("code_input").assertIsDisplayed()
+        composeRule.onNodeWithText("email", substring = true, ignoreCase = true).assertDoesNotExist()
+        composeRule.onNodeWithText("password", substring = true, ignoreCase = true).assertDoesNotExist()
     }
 
     @Test

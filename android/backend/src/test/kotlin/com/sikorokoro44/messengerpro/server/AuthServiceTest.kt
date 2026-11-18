@@ -93,6 +93,36 @@ class AuthServiceTest {
     }
 
     @Test
+    fun codeFromAnotherRequestCannotVerifyADifferentSignInAttempt() {
+        val clock = FakeClock()
+        val sms = RecordingSmsGateway()
+        val h = rig(clock, sms)
+
+        val first = h.service.requestOtp("+26876123456", "ip-hash")
+        val firstCode = sms.lastCode!!
+        var second = h.service.requestOtp("+26876123457", "ip-hash")
+        var secondCode = sms.lastCode!!
+        var retries = 0
+        while (secondCode == firstCode && retries++ < 10) {
+            second = h.service.requestOtp("+26876123457", "ip-hash")
+            secondCode = sms.lastCode!!
+        }
+        assertNotEquals(firstCode, secondCode)
+
+        assertEquals(AuthFailure.INVALID_CODE, failureOf {
+            h.service.verifyOtp("+26876123457", second.requestId, firstCode)
+        })
+        assertEquals(0, h.accounts.count())
+        assertEquals(0, h.sessions.count())
+
+        val verified = h.service.verifyOtp("+26876123457", second.requestId, secondCode)
+        assertEquals("active", verified.accountState)
+        assertEquals(1, h.accounts.count())
+        assertEquals(1, h.sessions.count())
+        assertNotEquals(first.requestId, second.requestId)
+    }
+
+    @Test
     fun expiredAndInvalidCodesAreRejected() {
         val clock = FakeClock()
         val sms = RecordingSmsGateway()
