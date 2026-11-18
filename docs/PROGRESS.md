@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `9c5146a47c846f9d4a0fe0bdce59ae982d414bd5`.
-Android CI run 50, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44261505452 — **success on the exact HEAD**, both jobs green.
+Branch `main`, verified HEAD `5679a9be2ae6b9e221abe11bb6d883544e586e2c`.
+Android CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 — **success on the exact HEAD**, both jobs green.
 
-- JVM unit tests (`:app:testDebugUnitTest`): 52 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
+- JVM unit tests (`:app:testDebugUnitTest`): 53 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
 - Server-authoritative core tests (`:backend:test`): 34 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator tests (API 35, KVM x86_64): 11 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `884cc34b0f09ec308c289e12b6435aa343185a0e8bcfcb845042719fbd7db8b3`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -22,7 +22,8 @@ Android CI run 50, https://github.com/SikoroApps/Messenger-Pro/actions/runs/4426
 - The audit code is reference-core evidence only. `MP-114` and `MP-116` stay `NOT_STARTED` because their reconstructed prerequisite chains (`MP-113`, `MP-115`) and deployed-runtime gates are unmet; no status was inflated.
 - Added an OkHttp network interceptor that strips any pre-existing `Authorization` header and attaches the current access token only to allowlisted HTTPS hosts. Because it is a network interceptor, the host check is re-evaluated on redirects. `AuthorizationHeaderInterceptorTest` (4 cases) and `HttpAuthApiTest` TLS/redirect regressions cover the rule. Runs 41–45 failed on emulator-job test/compile regressions while introducing these changes; commits `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6` and `2699b59` resolved them, and runs 46 and 47 are green.
 - Added full jitter over a bounded exponential window and an explicit transient/idempotent retry gate to `RetryPolicy`. Seeded-jitter, hard-cap and total-budget tests replace the former fixed-delay assertion and pass in run 50; `MP-097` is `TESTED`. This is network-layer policy evidence only, with no runtime retry executor or hosted backend integration.
-- Advanced `MP-091` and `MP-097` to `TESTED` from runs 47 and 50, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 48 rows are now `TESTED` and no row was marked `COMPLETE`.
+- Added `SecurityConfigurationTest`, an automated JVM assertion that the manifest disables cleartext traffic and requests no broad SMS permission. Together with the existing `TransportPolicy`, `HttpAuthApi` and interceptor cleartext negatives, this completes the evidence required by `MP-048`; `MP-048` and `MP-103` (replay rejection, already covered by `AuthServiceTest.correctCodeVerifiesExactlyOnceThenReplayIsRejected` and `SecurityAndNetworkTest`) are now `TESTED` from run 51. No deployed backend or real SMS delivery is claimed.
+- Advanced `MP-091` and `MP-097` to `TESTED` from runs 47 and 50, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 50 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note

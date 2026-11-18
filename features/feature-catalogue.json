@@ -827,10 +827,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "high: cleartext traffic exposes codes and tokens",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: network security config assertion and negative cleartext test",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 51 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 success on 5679a9be2ae6b9e221abe11bb6d883544e586e2c: 53 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0. SecurityConfigurationTest.manifestDisablesCleartextAndRequestsNoBroadSmsPermission asserts the tracked manifest sets android:usesCleartextTraffic=false and requests no READ_SMS/RECEIVE_SMS/SEND_SMS permission; TransportAndInputTest.transportPolicyRejectsAnythingButHttpsWithoutEmbeddedCredentials, HttpAuthApiTest.cleartextBaseUrlIsRejectedAtConstruction and AuthorizationHeaderInterceptorTest.cleartextRequestsNeverReceiveAToken cover negative cleartext paths.",
+      "blocker": "Client/manifest policy evidence only: no hosted TLS deployment, remote endpoint or real SMS delivery is implied."
     },
     {
       "feature_id": "MP-049",
@@ -1817,10 +1817,10 @@
       "android_component": "android/app/src/test/java/com/sikorokoro44/messengerpro/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "high: replay tests guard account takeover",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "JVM unit test: replayed code rejection test",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 51 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 success on 5679a9be2ae6b9e221abe11bb6d883544e586e2c: 53 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0. AuthServiceTest.correctCodeVerifiesExactlyOnceThenReplayIsRejected proves a consumed request yields CODE_CONSUMED and creates no second account or session; AuthServiceTest.codeFromAnotherRequestCannotVerifyADifferentSignInAttempt rejects cross-request code reuse; SecurityAndNetworkTest.expiredConsumedAndThrottledErrorsCarrySafeContractData covers the client CODE_CONSUMED contract. Reference-core and client-contract evidence only.",
+      "blocker": "No deployed backend or real SMS delivery: server-authoritative replay enforcement is verified in the JVM reference core, not at a hosted runtime."
     },
     {
       "feature_id": "MP-104",

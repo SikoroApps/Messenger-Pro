@@ -17,10 +17,10 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact evidence: run 50 (`44261505452`) on `9c5146a47c846f9d4a0fe0bdce59ae982d414bd5` —
-  52 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, 0 failures/errors/skips,
+- Latest exact evidence: run 51 (`44263462812`) on `5679a9be2ae6b9e221abe11bb6d883544e586e2c` —
+  53 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, 0 failures/errors/skips,
   lint 0 errors/11 warnings, debug APK SHA-256
-  `884cc34b0f09ec308c289e12b6435aa343185a0e8bcfcb845042719fbd7db8b3`.
+  `2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -39,8 +39,11 @@ and `HttpAuthApiTest` redirect/HTTPS regressions; that is client/network-layer e
 proof of a deployed authorization runtime. Likewise, `RetryPolicy` is covered by
 `TransportAndInputTest` seeded-jitter, bounded-exponential-window, transient/idempotent gate and
 hard-cap cases; this does not imply a runtime retry executor, hosted backend or real SMS delivery.
+`SecurityConfigurationTest` asserts the manifest-level cleartext and broad-SMS-permission policy for
+`MP-048`, and replay rejection for `MP-103` rests on `AuthServiceTest` plus the client `CODE_CONSUMED`
+contract case; neither is evidence of deployed enforcement.
 
-Latest evidence: CI run 50, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44261505452,
-on `9c5146a47c846f9d4a0fe0bdce59ae982d414bd5` — 52 app JVM tests, 34 backend JVM tests, 11 API 35
+Latest evidence: CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812,
+on `5679a9be2ae6b9e221abe11bb6d883544e586e2c` — 53 app JVM tests, 34 backend JVM tests, 11 API 35
 emulator tests, lint clean and debug APK SHA-256
-`884cc34b0f09ec308c289e12b6435aa343185a0e8bcfcb845042719fbd7db8b3`.
+`2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
