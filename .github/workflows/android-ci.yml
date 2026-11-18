@@ -25,10 +25,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Gradle
+      - name: Set up Gradle build cache
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
       - name: Locate Android SDK command-line tools
         id: sdk
         shell: bash
@@ -52,10 +50,10 @@ jobs:
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - name: Validate Gradle project
         working-directory: android
-        run: gradle projects --no-daemon
+        run: ./gradlew projects --no-daemon
       - name: Run unit tests
         working-directory: android
-        run: gradle testDebugUnitTest --no-daemon
+        run: ./gradlew testDebugUnitTest --no-daemon
       - name: Upload unit test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,7 +63,7 @@ jobs:
           if-no-files-found: error
       - name: Run Android lint
         working-directory: android
-        run: gradle lintDebug --no-daemon
+        run: ./gradlew lintDebug --no-daemon
       - name: Upload lint report
         if: always()
         uses: actions/upload-artifact@v4
@@ -75,7 +73,7 @@ jobs:
           if-no-files-found: warn
       - name: Assemble debug APK
         working-directory: android
-        run: gradle assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon
       - name: Verify APK package name
         shell: bash
         run: |
@@ -104,10 +102,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Gradle
+      - name: Set up Gradle build cache
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
       - name: Locate Android SDK command-line tools
         id: sdk
         shell: bash
@@ -142,7 +138,7 @@ jobs:
           arch: x86_64
           disable-linux-hw-accel: false
           working-directory: android
-          script: gradle connectedDebugAndroidTest --no-daemon
+          script: ./gradlew connectedDebugAndroidTest --no-daemon
       - name: Upload device test results
         if: always()
         uses: actions/upload-artifact@v4
