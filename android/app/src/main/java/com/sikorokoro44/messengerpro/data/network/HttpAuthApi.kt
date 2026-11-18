@@ -9,6 +9,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
 /**
@@ -20,15 +21,23 @@ class HttpAuthApi(
     client: OkHttpClient,
     policy: HttpClientPolicy = HttpClientPolicy.DEFAULT,
     allowedHosts: Set<String> = emptySet(),
+    accessTokenProvider: (() -> String?)? = null,
     private val errorMapper: HttpErrorMapper = HttpErrorMapper,
 ) : AuthApi {
     private val origin: String = TransportPolicy.requireSecureBaseUrl(baseUrl, allowedHosts)
+    private val effectiveAllowedHosts: Set<String> =
+        allowedHosts.ifEmpty { setOf(URI(origin).host) }
 
     private val httpClient: OkHttpClient = client.newBuilder()
         .connectTimeout(policy.connectTimeoutMs, TimeUnit.MILLISECONDS)
         .readTimeout(policy.readTimeoutMs, TimeUnit.MILLISECONDS)
         .writeTimeout(policy.writeTimeoutMs, TimeUnit.MILLISECONDS)
         .callTimeout(policy.callTimeoutMs, TimeUnit.MILLISECONDS)
+        .apply {
+            if (accessTokenProvider != null) {
+                addInterceptor(AuthorizationHeaderInterceptor(accessTokenProvider, effectiveAllowedHosts))
+            }
+        }
         .build()
 
     override suspend fun requestOtp(request: OtpRequest): ApiResult<OtpRequestResponse> =

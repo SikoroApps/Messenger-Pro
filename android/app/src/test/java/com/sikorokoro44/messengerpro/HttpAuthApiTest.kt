@@ -163,6 +163,27 @@ class HttpAuthApiTest {
         assertTrue((result as ApiResult.Failure).error is AuthError.Network)
     }
 
+    @Test
+    fun configuredAccessTokenIsScopedToTheBackendHost() = runBlocking {
+        val (server, client) = secureServer()
+        try {
+            server.enqueue(
+                MockResponse().setResponseCode(200)
+                    .setBody("""{"request_id":"req-auth","expires_in":300,"retry_after":0}"""),
+            )
+            val api = HttpAuthApi(
+                baseUrl = "https://localhost:${server.port}",
+                client = client,
+                allowedHosts = setOf("localhost"),
+                accessTokenProvider = { "secret-access-token" },
+            )
+            assertTrue(api.requestOtp(OtpRequest("+26876123456", "ss-ZA")) is ApiResult.Success)
+            assertEquals("Bearer secret-access-token", server.takeRequest().getHeader("Authorization"))
+        } finally {
+            server.shutdown()
+        }
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun cleartextBaseUrlIsRejectedAtConstruction() {
         val (server, client) = secureServer()
