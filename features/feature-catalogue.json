@@ -1241,10 +1241,10 @@
       "android_component": "backend/ contracts and migrations (not present in repository)",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: failover must not duplicate codes to unintended numbers",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: failover decision unit test",
-      "verification_evidence": "",
-      "blocker": "SMS delivery provider credentials not configured."
+      "verification_evidence": "Android CI run 44266144588 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44266144588 success on 1d3f4d27e38ab0ae6f7d8046df396bc29673d0e8: 53 app JVM tests, 39 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 256e0a9a1bf6ef208a1a73f4a387ce6e377ae25f45caa0674d282d69a7308ae7. SmsFailoverTest covers primary success (no secondary call), clean pre-handoff failure (secondary receives the same phone/code/request id), ambiguous failure with a provider message id (no duplicate code), redacted secondary handoff metadata with the secondary provider id, and secondary failure granting no account or session. android/backend/ is a pure-JVM reference core, not a deployed Edge Function.",
+      "blocker": "No SMS provider credentials or funding: failover decision logic is CI-tested with fake gateways; real +268 delivery and a deployed secondary route are unverified."
     },
     {
       "feature_id": "MP-072",

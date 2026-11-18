@@ -17,10 +17,10 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact evidence: run 51 (`44263462812`) on `5679a9be2ae6b9e221abe11bb6d883544e586e2c` —
-  53 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, 0 failures/errors/skips,
-  lint 0 errors/11 warnings, debug APK SHA-256
-  `2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
+- Latest exact code evidence: run `44266144588` on `1d3f4d27e38ab0ae6f7d8046df396bc29673d0e8` —
+  53 app JVM tests, 39 backend JVM tests (including 5 `SmsFailoverTest` cases), 11 API 35 emulator
+  tests, 0 failures/errors/skips, lint 0 errors/11 warnings, debug APK SHA-256
+  `256e0a9a1bf6ef208a1a73f4a387ce6e377ae25f45caa0674d282d69a7308ae7`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -41,9 +41,12 @@ proof of a deployed authorization runtime. Likewise, `RetryPolicy` is covered by
 hard-cap cases; this does not imply a runtime retry executor, hosted backend or real SMS delivery.
 `SecurityConfigurationTest` asserts the manifest-level cleartext and broad-SMS-permission policy for
 `MP-048`, and replay rejection for `MP-103` rests on `AuthServiceTest` plus the client `CODE_CONSUMED`
-contract case; neither is evidence of deployed enforcement.
+contract case; neither is evidence of deployed enforcement. `SmsFailoverTest` covers the
+`FailoverSmsGateway` decision policy for `MP-071`; a mocked provider and loopback core are never real
+`+268` delivery evidence.
 
-Latest evidence: CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812,
-on `5679a9be2ae6b9e221abe11bb6d883544e586e2c` — 53 app JVM tests, 34 backend JVM tests, 11 API 35
+Latest code evidence: CI run `44266144588`,
+https://github.com/SikoroApps/Messenger-Pro/actions/runs/44266144588, on
+`1d3f4d27e38ab0ae6f7d8046df396bc29673d0e8` — 53 app JVM tests, 39 backend JVM tests, 11 API 35
 emulator tests, lint clean and debug APK SHA-256
-`2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
+`256e0a9a1bf6ef208a1a73f4a387ce6e377ae25f45caa0674d282d69a7308ae7`.

@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `5679a9be2ae6b9e221abe11bb6d883544e586e2c`.
-Android CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 — **success on the exact code HEAD `5679a9be2ae6b9e221abe11bb6d883544e586e2c`**, both jobs green. The subsequent documentation-only commit `089b4904ed8dd76cbfe4a059bdc25b1bf5db544c` was re-verified by run `44265679115` (success); all test counts and checksums below refer to run 51.
+Branch `main`, last code-changing HEAD `1d3f4d27e38ab0ae6f7d8046df396bc29673d0e8`.
+Android CI run `44266144588`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44266144588 — **success on the exact code HEAD `1d3f4d2…`**, both jobs green. The later documentation-only commit `a1fe240…` was superseded by the branch concurrency rule; all test counts and checksums below refer to run `44266144588`.
 
 - JVM unit tests (`:app:testDebugUnitTest`): 53 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
-- Server-authoritative core tests (`:backend:test`): 34 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
+- Server-authoritative core tests (`:backend:test`): 39 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator tests (API 35, KVM x86_64): 11 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `256e0a9a1bf6ef208a1a73f4a387ce6e377ae25f45caa0674d282d69a7308ae7`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -23,7 +23,8 @@ Android CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/4426
 - Added an OkHttp network interceptor that strips any pre-existing `Authorization` header and attaches the current access token only to allowlisted HTTPS hosts. Because it is a network interceptor, the host check is re-evaluated on redirects. `AuthorizationHeaderInterceptorTest` (4 cases) and `HttpAuthApiTest` TLS/redirect regressions cover the rule. Runs 41–45 failed on emulator-job test/compile regressions while introducing these changes; commits `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6` and `2699b59` resolved them, and runs 46 and 47 are green.
 - Added full jitter over a bounded exponential window and an explicit transient/idempotent retry gate to `RetryPolicy`. Seeded-jitter, hard-cap and total-budget tests replace the former fixed-delay assertion and pass in run 50; `MP-097` is `TESTED`. This is network-layer policy evidence only, with no runtime retry executor or hosted backend integration.
 - Added `SecurityConfigurationTest`, an automated JVM assertion that the manifest disables cleartext traffic and requests no broad SMS permission. Together with the existing `TransportPolicy`, `HttpAuthApi` and interceptor cleartext negatives, this completes the evidence required by `MP-048`; `MP-048` and `MP-103` (replay rejection, already covered by `AuthServiceTest.correctCodeVerifiesExactlyOnceThenReplayIsRejected` and `SecurityAndNetworkTest`) are now `TESTED` from run 51. No deployed backend or real SMS delivery is claimed.
-- Advanced `MP-091` and `MP-097` to `TESTED` from runs 47 and 50, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 50 rows are now `TESTED` and no row was marked `COMPLETE`.
+- Preserved concurrent `FailoverSmsGateway` work: a provider-independent secondary route is used only after a clean pre-handoff failure; an ambiguous failure with a provider message id is never retried, preventing duplicate codes. Five `SmsFailoverTest` cases pass in run `44266144588`; `MP-071` is `TESTED` as reference-core evidence only, with real `+268` delivery still unverified.
+- Advanced `MP-091` and `MP-097` to `TESTED` from runs 47 and 50, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 51 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note
