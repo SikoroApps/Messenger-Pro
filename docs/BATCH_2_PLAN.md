@@ -1,12 +1,12 @@
 # Batch 2 plan — Identity, Backend & Core Security
 
 **Status: IN PROGRESS — client boundary, reference core, SMS rules and loopback HTTP contract are CI-tested; backend, SMS delivery and server-enforced runtime features remain BLOCKED.**
-**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 46 entries are TESTED.**
+**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 47 entries are TESTED.**
 **Phone number + OTP only. No email, no password, no mandatory Google account.**
 
 ## Progress (verified)
-- HEAD `25ba0e545575d3a83994efc16adb2a2c997378f1`, Android CI run 38 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44253912755 — success, both jobs green; 44 app JVM tests, 33 backend JVM tests, 9 emulator tests, lint clean, debug APK SHA-256 `b292b7d9b340fd6ce6852c11c7146cb52410c2884531b31d4096c614120cf122`.
-- Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-063` (parsing only), `MP-065`, `MP-066`, `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. The client now sends a per-attempt idempotency key, maps `SESSION_REVOKED` to `Unauthorized`, enforces an optional HTTPS host allowlist, and has a unit-tested SMS OTP extractor. OS SMS Retriever wiring and Play app-hash evidence remain open.
+- HEAD `2699b59f21b8b16c2b53355d546a271705f71408`, Android CI run 47 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44259910664 — success, both jobs green; 50 app JVM tests, 34 backend JVM tests, 11 emulator tests, lint clean, debug APK SHA-256 `6e03e6b59cd809f933d9812cf2826a2258d37933d1a9b2bc705bd709b116e75f`.
+- Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-063` (parsing only), `MP-065`, `MP-066`, `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. The client now sends a per-attempt idempotency key, maps `SESSION_REVOKED` to `Unauthorized`, enforces an optional HTTPS host allowlist, scopes bearer tokens to allowlisted HTTPS hosts even across redirects (`MP-091`), and has a unit-tested SMS OTP extractor. OS SMS Retriever wiring and Play app-hash evidence remain open.
 - Server-authoritative rules now exist as a CI-tested JVM reference core in `android/backend/`, including metadata-only SMS receipts, keyed-hash audit/abuse logging and a loopback-only HTTP adapter (`MP-055`, `MP-057`–`MP-062`, `MP-067`, `MP-069`, `MP-070`, `MP-074`–`MP-078`, `MP-085`, `MP-086`, `MP-094`, `MP-095`). Tests cover code generation, hashed verifiers, expiry, attempts, replay, cooldown, rate limits, scoped idempotency, session rotation/reuse, redaction and real-socket JSON status/error contracts. Audit code is not counted toward `MP-114`/`MP-116` because their prerequisite chain (`MP-113`, `MP-115`) and deployed-runtime gates are unmet.
 - These are `TESTED` or `BLOCKED`, never `COMPLETE`: the core and loopback adapter are not deployed, no real SMS delivery exists, and the reconstructed catalogue's prerequisite chains include runtime gates that cannot be satisfied without credentials/funding.
 - Still blocked: backend deployment and RLS verification, SMS provider integration and real `+268` delivery, end-to-end delivered-code registration/sign-in (section 14 items 1–5).
@@ -239,7 +239,7 @@ Typed error codes with stable names; generic user messages that never reveal whe
 - All new backend tests and Android instrumentation tests run in GitHub Actions; compile-only is not completion.
 - Secret scanning and dependency scanning on every push; fail on detected secrets.
 - No provider credentials in logs; mask all GitHub Actions secrets.
-- **Gradle wrapper deviation:** no `gradle/wrapper/` exists; CI pins hosted Gradle 8.9. Proposed secure fix (needs approval because it changes build tooling): generate a wrapper in a GitHub-hosted job with `gradle wrapper --gradle-version 8.9`, commit `gradlew`, `gradlew.bat`, `gradle/wrapper/*`, and add `distributionSha256Sum` to `gradle-wrapper.properties` after verifying the published checksum. Until then, hosted Gradle remains pinned and deterministic.
+- **Gradle wrapper resolved:** the wrapper was generated in a GitHub-hosted job and committed with verified `distributionSha256Sum` `d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab`; CI now builds only through `./gradlew`. No local Android SDK or Gradle build was used.
 
 ## 14. Batch 2 exit criteria
 
@@ -276,7 +276,7 @@ All must be evidenced; none may be inferred from a green compile:
 4. Clarify whether the intended eSMS Africa is `esmsafrica.io` or `esmsafrica.com` — they appear to be different operators.
 5. Approve generating and committing a **Gradle wrapper** with a verified distribution checksum in a GitHub-hosted job.
 
-No code implementation for Batch 2 has started; these decisions do not block writing this plan, but they do block deployment and real SMS verification.
+Client-boundary and reference-core implementation is in progress and CI-tested; decision 5 is resolved by the committed wrapper. Decisions 1–4 still block deployment, real SMS verification and any `COMPLETE` status for the affected features.
 
 ## 17. References
 

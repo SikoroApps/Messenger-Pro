@@ -9,6 +9,9 @@
 - Normalize phone numbers to E.164 before identity operations.
 - Do not log phone numbers, message bodies, access tokens, or OTP values. Redact diagnostics.
 - Use TLS for all remote calls. Reject cleartext production traffic.
+- Attach bearer tokens only to allowlisted HTTPS hosts. Strip any pre-existing `Authorization`
+  header and re-check the destination on redirects (the OkHttp interceptor is registered as a
+  network interceptor), so a redirect cannot leak the token to another host.
 - Android permissions must be least-privilege and requested just in time.
 - Use SMS Retriever / SMS User Consent for OTP autofill; do not use broad SMS-reading permissions.
 - Add dependency scanning and review third-party SDK data collection before release.

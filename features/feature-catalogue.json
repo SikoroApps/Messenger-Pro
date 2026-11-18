@@ -1601,10 +1601,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "high: token leakage to third-party hosts is critical",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: interceptor unit test with host allowlist",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 47 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44259910664 success on 2699b59f21b8b16c2b53355d546a271705f71408: 50 app JVM tests, 34 backend JVM tests, 11 API 35 emulator tests, lint clean, debug APK SHA-256 6e03e6b59cd809f933d9812cf2826a2258d37933d1a9b2bc705bd709b116e75f. AuthorizationHeaderInterceptorTest.tokenIsAttachedOnlyToAllowlistedHttpsHosts, preexistingTokenIsStrippedFromUnrelatedHosts, cleartextRequestsNeverReceiveAToken and blankOrMissingTokensNeverAttachAHeader cover allowlisted HTTPS host attachment and stripping; HttpAuthApiTest.configuredAccessTokenIsScopedToTheBackendHost and accessTokenIsNotForwardedToARedirectOutsideTheAllowlist cover the configured client and redirect token-leak regression. The interceptor is registered as an OkHttp network interceptor so the host check is re-evaluated on redirects.",
+      "blocker": "Client-only evidence: no hosted backend, deployed authorization or real SMS delivery is implied."
     },
     {
       "feature_id": "MP-092",

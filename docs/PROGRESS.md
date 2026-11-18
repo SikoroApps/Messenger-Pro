@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `25ba0e545575d3a83994efc16adb2a2c997378f1`.
-Android CI run 38, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44253912755 — **success on the exact HEAD**, both jobs green.
+Branch `main`, verified HEAD `2699b59f21b8b16c2b53355d546a271705f71408`.
+Android CI run 47, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44259910664 — **success on the exact HEAD**, both jobs green.
 
-- JVM unit tests (`:app:testDebugUnitTest`): 44 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
-- Server-authoritative core tests (`:backend:test`): 33 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
-- Emulator tests (API 35, KVM x86_64): 9 passed, 0 failures (artifact `messenger-pro-device-test-results`).
+- JVM unit tests (`:app:testDebugUnitTest`): 50 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
+- Server-authoritative core tests (`:backend:test`): 34 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
+- Emulator tests (API 35, KVM x86_64): 11 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `b292b7d9b340fd6ce6852c11c7146cb52410c2884531b31d4096c614120cf122`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `6e03e6b59cd809f933d9812cf2826a2258d37933d1a9b2bc705bd709b116e75f`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -20,7 +20,8 @@ Android CI run 38, https://github.com/SikoroApps/Messenger-Pro/actions/runs/4425
 - Added a pure-JVM `SmsOtpExtractor` with retriever-hash validation, user-consent parsing and ambiguity rejection; 4 unit tests added in run 35. OS retriever/Play-services wiring and delivered-message evidence remain BLOCKED.
 - Added metadata-only auth audit and abuse-signal logging to the reference core: keyed-hash audit records for OTP/session transitions, generic abuse signals for malformed, replayed and reused requests, and logout audit only when a session was actually revoked. Five `AuditTest` cases pass in run 38. Run 36 failed on an incorrect test expectation (first rotation is valid); `25ba0e5` corrected the test and run 38 is green.
 - The audit code is reference-core evidence only. `MP-114` and `MP-116` stay `NOT_STARTED` because their reconstructed prerequisite chains (`MP-113`, `MP-115`) and deployed-runtime gates are unmet; no status was inflated.
-- Advanced 9 already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; no row was marked `COMPLETE`.
+- Added an OkHttp network interceptor that strips any pre-existing `Authorization` header and attaches the current access token only to allowlisted HTTPS hosts. Because it is a network interceptor, the host check is re-evaluated on redirects. `AuthorizationHeaderInterceptorTest` (4 cases) and `HttpAuthApiTest` TLS/redirect regressions cover the rule. Runs 41–45 failed on emulator-job test/compile regressions while introducing these changes; commits `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6` and `2699b59` resolved them, and runs 46 and 47 are green.
+- Advanced `MP-091` to `TESTED` from run 47 and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 47 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note

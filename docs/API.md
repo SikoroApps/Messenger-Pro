@@ -48,6 +48,12 @@ therefore cannot send a second SMS or read another number's cached result.
 or fragment. Cleartext is rejected at construction. Non-default HTTPS ports are permitted so
 TLS can be exercised against a local test server; this is not a downgrade of transport security.
 
+`AuthorizationHeaderInterceptor` removes any pre-existing `Authorization` header and attaches the
+current access token only when the final request URL is HTTPS and its host is in the configured
+allowlist. It is installed as an OkHttp network interceptor so redirects are re-evaluated before
+the header is attached. Client tests cover allowlisted attachment, stripping on unrelated hosts,
+cleartext rejection and redirect leakage.
+
 ## Not yet deployed
 
 These contracts are implemented in code and unit-tested, including real loopback HTTP socket tests,
