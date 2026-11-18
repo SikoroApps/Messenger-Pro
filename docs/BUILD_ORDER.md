@@ -52,3 +52,17 @@ Exit gate: signed release artifact verified, checksum published, smoke tests com
 
 ## Batch status record
 A batch is not complete merely because files or registry rows exist. Record commit SHA, CI run result, test names/results, and any device evidence before advancing.
+
+### Batch 1 — Repository and platform foundation: COMPLETE
+- Verified code commit: `3be49abf523e6816991d9d895e08a0a4ec847d56`.
+- CI: `Android CI`, run 12, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44205558041 — success, both jobs green.
+- `verify` job: checkout, JDK 17, hosted Gradle 8.9, Android SDK discovery/licensing and platform 35, `gradle projects`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, APK package-name assertion (`com.sikorokoro44.messengerpro.debug`), artifact uploads.
+- `Emulator app-launch smoke test` job: KVM-enabled x86_64 API 35 emulator running `connectedDebugAndroidTest`.
+- Unit tests: `BuildConfigurationTest.applicationIdUsesStableNamespaceWithDebugSuffix`, `.versionNameIsSet`, `.debugBuildHasDebuggingEnabled` — 3 tests, 0 failures, 0 errors, 0 skipped (artifact `messenger-pro-unit-test-results`).
+- Device evidence: `AppLaunchTest.appLaunchesToStableShell` passed in 1.349 s on the API 35 emulator (artifact `messenger-pro-device-test-results`).
+- Lint: `lintDebug` passed; report in artifact `messenger-pro-lint`.
+- Debug APK: artifact `messenger-pro-debug`, `app-debug.apk`, SHA-256 `a3136b94aed85deee07ab77e8c8687635f02b39fa634a2918e657e9efd2f46ff`. Package name verified from the built APK with `aapt dump badging`.
+- Secret review: no credentials, signing keys, provider secrets or tokens in tracked files or any of the 20 pre-existing commits.
+- Documentation: README, BUILD_ORDER, ARCHITECTURE, SECURITY and features/README are present.
+- Known limitations: the authoritative 600-feature catalogue and an implementation-status file are not present in this repository, so no MP feature is marked COMPLETE; CI uses hosted Gradle 8.9 because no wrapper is committed; `.github/workflows/android-release.yml` is untracked local work and belongs to Batch 7; no backend, SMS provider or authentication implementation exists yet.
+- Next permitted batch: none yet. Batch 2 — Identity and phone OTP is BLOCKED until the authoritative catalogue is supplied and its prerequisite IDs are mapped.
