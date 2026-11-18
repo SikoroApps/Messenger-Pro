@@ -5,8 +5,9 @@ import okhttp3.Response
 
 /**
  * Attaches the current access token only to allowlisted HTTPS hosts. Any pre-existing
- * Authorization header is removed first, so a token can never follow a redirect or reuse of a
- * shared OkHttpClient to an unrelated origin. Tokens are never logged.
+ * Authorization header is removed first, so a token cannot follow a redirect or reuse of a
+ * shared OkHttpClient to an unrelated origin. Registered as an OkHttp network interceptor, it is
+ * re-evaluated for every redirected request. Tokens are never logged.
  */
 class AuthorizationHeaderInterceptor(
     private val accessTokenProvider: () -> String?,

@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
@@ -158,8 +157,8 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("phone_input").assertIsDisplayed()
-        composeRule.onNodeWithText("email", substring = true, ignoreCase = true).assertDoesNotExist()
-        composeRule.onNodeWithText("password", substring = true, ignoreCase = true).assertDoesNotExist()
+        composeRule.onAllNodesWithText("email", substring = true, ignoreCase = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("password", substring = true, ignoreCase = true).assertCountEquals(0)
 
         composeRule.setContent {
             MaterialTheme {
@@ -176,8 +175,8 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("code_input").assertIsDisplayed()
-        composeRule.onNodeWithText("email", substring = true, ignoreCase = true).assertDoesNotExist()
-        composeRule.onNodeWithText("password", substring = true, ignoreCase = true).assertDoesNotExist()
+        composeRule.onAllNodesWithText("email", substring = true, ignoreCase = true).assertCountEquals(0)
+        composeRule.onAllNodesWithText("password", substring = true, ignoreCase = true).assertCountEquals(0)
     }
 
     @Test

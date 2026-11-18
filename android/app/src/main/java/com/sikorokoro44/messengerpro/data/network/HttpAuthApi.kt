@@ -35,7 +35,9 @@ class HttpAuthApi(
         .callTimeout(policy.callTimeoutMs, TimeUnit.MILLISECONDS)
         .apply {
             if (accessTokenProvider != null) {
-                addInterceptor(AuthorizationHeaderInterceptor(accessTokenProvider, effectiveAllowedHosts))
+                // A network interceptor is re-evaluated on every redirect; an application
+                // interceptor would let the header follow a redirect to another host.
+                addNetworkInterceptor(AuthorizationHeaderInterceptor(accessTokenProvider, effectiveAllowedHosts))
             }
         }
         .build()

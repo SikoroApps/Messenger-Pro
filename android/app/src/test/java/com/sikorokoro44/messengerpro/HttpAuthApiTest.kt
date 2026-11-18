@@ -8,6 +8,7 @@ import com.sikorokoro44.messengerpro.data.network.OtpRequest
 import com.sikorokoro44.messengerpro.data.network.OtpVerifyRequest
 import com.sikorokoro44.messengerpro.data.network.RefreshRequest
 import kotlinx.coroutines.runBlocking
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -15,8 +16,10 @@ import okhttp3.tls.HandshakeCertificates
 import okhttp3.tls.HeldCertificate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.net.InetAddress
 
 class HttpAuthApiTest {
     private fun secureServer(): Pair<MockWebServer, OkHttpClient> {
@@ -181,6 +184,58 @@ class HttpAuthApiTest {
             assertEquals("Bearer secret-access-token", server.takeRequest().getHeader("Authorization"))
         } finally {
             server.shutdown()
+        }
+    }
+
+    @Test
+    fun accessTokenIsNotForwardedToARedirectOutsideTheAllowlist() = runBlocking {
+        val held = HeldCertificate.Builder()
+            .commonName("localhost")
+            .addSubjectAlternativeName("localhost")
+            .addSubjectAlternativeName("redirect.invalid")
+            .build()
+        val certificates = HandshakeCertificates.Builder()
+            .heldCertificate(held)
+            .addTrustedCertificate(held.certificate)
+            .build()
+        val client = OkHttpClient.Builder()
+            .sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager)
+            .dns(Dns { hostname ->
+                if (hostname.equals("redirect.invalid", ignoreCase = true)) {
+                    listOf(InetAddress.getByName("127.0.0.1"))
+                } else {
+                    Dns.SYSTEM.lookup(hostname)
+                }
+            })
+            .build()
+        val first = MockWebServer()
+        val redirect = MockWebServer()
+        first.useHttps(certificates.sslSocketFactory(), false)
+        redirect.useHttps(certificates.sslSocketFactory(), false)
+        first.start()
+        redirect.start()
+        try {
+            redirect.enqueue(
+                MockResponse().setResponseCode(200)
+                    .setBody("""{"request_id":"req-redirect","expires_in":300,"retry_after":0}"""),
+            )
+            first.enqueue(
+                MockResponse().setResponseCode(302)
+                    .addHeader("Location", "https://redirect.invalid:${redirect.port}/auth/otp/request"),
+            )
+            val api = HttpAuthApi(
+                baseUrl = "https://localhost:${first.port}",
+                client = client,
+                allowedHosts = setOf("localhost"),
+                accessTokenProvider = { "secret-access-token" },
+            )
+
+            assertTrue(api.requestOtp(OtpRequest("+26876123456", "ss-ZA")) is ApiResult.Success)
+            assertEquals("Bearer secret-access-token", first.takeRequest().getHeader("Authorization"))
+            assertNull(redirect.takeRequest().getHeader("Authorization"))
+        } finally {
+            first.shutdown()
+            redirect.shutdown()
         }
     }
 
