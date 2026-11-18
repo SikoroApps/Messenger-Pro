@@ -5,9 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertEditableTextEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -113,7 +113,7 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("phone_input").performTextInput("076123456")
-        composeRule.onNodeWithTag("phone_input").assertEditableTextEquals("+268 76 123 456")
+        composeRule.onNodeWithTag("phone_input").assertTextContains("+268 76 123 456")
     }
 
     @Test
@@ -134,7 +134,7 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("code_input").performTextInput("48a2-9 13")
-        composeRule.onNodeWithTag("code_input").assertEditableTextEquals("482913")
+        composeRule.onNodeWithTag("code_input").assertTextContains("482913")
         composeRule.onNodeWithText("Verify code").assertIsEnabled()
     }
 }

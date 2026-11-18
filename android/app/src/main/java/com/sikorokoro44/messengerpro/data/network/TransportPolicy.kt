@@ -20,7 +20,6 @@ object TransportPolicy {
         require(!uri.host.isNullOrEmpty()) { "Auth base URL has no host" }
         require(uri.userInfo == null) { "Credentials must not be embedded in the auth URL" }
         require(uri.fragment.isNullOrEmpty()) { "Auth base URL must not contain a fragment" }
-        require(uri.port == -1 || uri.port == 443) { "Auth endpoint must use the HTTPS port" }
         require(uri.query.isNullOrEmpty()) { "Auth base URL must not contain a query string" }
         return trimmed.trimEnd('/')
     }

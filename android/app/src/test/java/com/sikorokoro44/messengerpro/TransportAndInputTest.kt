@@ -20,10 +20,10 @@ class TransportAndInputTest {
     fun transportPolicyRejectsAnythingButHttpsWithoutEmbeddedCredentials() {
         assertTrue(TransportPolicy.isSecureBaseUrl("https://api.example.com/auth"))
         assertTrue(TransportPolicy.isSecureBaseUrl("HTTPS://api.example.com/"))
+        assertTrue(TransportPolicy.isSecureBaseUrl("https://api.example.com:8443"))
         assertFalse(TransportPolicy.isSecureBaseUrl(""))
         assertFalse(TransportPolicy.isSecureBaseUrl("http://api.example.com"))
         assertFalse(TransportPolicy.isSecureBaseUrl("https://user:pass@api.example.com"))
-        assertFalse(TransportPolicy.isSecureBaseUrl("https://api.example.com:8443"))
         assertFalse(TransportPolicy.isSecureBaseUrl("https://api.example.com/?key=value"))
         assertEquals(
             "https://api.example.com",
