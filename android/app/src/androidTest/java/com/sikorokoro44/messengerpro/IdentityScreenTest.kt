@@ -16,6 +16,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sikorokoro44.messengerpro.data.auth.OtpInputFormatter
 import com.sikorokoro44.messengerpro.data.auth.PhoneInputFormatter
+import com.sikorokoro44.messengerpro.data.network.AuthError
+import com.sikorokoro44.messengerpro.security.DiagnosticsRedactor
 import com.sikorokoro44.messengerpro.ui.auth.Countries
 import com.sikorokoro44.messengerpro.ui.auth.Country
 import com.sikorokoro44.messengerpro.ui.auth.OtpEntryScreen
@@ -136,5 +138,26 @@ class IdentityScreenTest {
         composeRule.onNodeWithTag("code_input").performTextInput("48a2-9 13")
         composeRule.onNodeWithTag("code_input").assertTextContains("482913")
         composeRule.onNodeWithText("Verify code").assertIsEnabled()
+    }
+
+    @Test
+    fun offlineStateShowsNetworkErrorWithoutDisablingManualEntry() {
+        composeRule.setContent {
+            MaterialTheme {
+                PhoneEntryScreen(
+                    phoneInput = "+268 76 123 456",
+                    onPhoneInputChange = {},
+                    selectedCountry = Countries.default,
+                    onCountrySelected = {},
+                    validationMessage = null,
+                    errorMessage = DiagnosticsRedactor.error(AuthError.Network()),
+                    isBusy = false,
+                    onSubmit = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText(DiagnosticsRedactor.error(AuthError.Network())).assertIsDisplayed()
+        composeRule.onNodeWithTag("phone_input").assertIsDisplayed()
+        composeRule.onNodeWithText("Send verification code").assertIsEnabled()
     }
 }

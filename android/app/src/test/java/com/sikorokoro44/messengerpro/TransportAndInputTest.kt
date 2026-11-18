@@ -29,6 +29,8 @@ class TransportAndInputTest {
             "https://api.example.com",
             TransportPolicy.requireSecureBaseUrl("https://api.example.com///"),
         )
+        assertTrue(TransportPolicy.isSecureBaseUrl("https://api.example.com", setOf("API.EXAMPLE.COM")))
+        assertFalse(TransportPolicy.isSecureBaseUrl("https://evil.example.com", setOf("api.example.com")))
     }
 
     @Test

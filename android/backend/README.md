@@ -18,6 +18,9 @@ the security-critical behaviour can be exercised in GitHub Actions without crede
   family-wide revocation; only token hashes are persisted.
 - `server/AuthService.kt` — orchestration: no account or session exists before verification, the
   code is never returned to the caller, and idempotency keys prevent duplicate sends.
+- `server/AuthHttp.kt` — a loopback-only HTTP adapter for the JSON contract. Integration tests use
+  real sockets to verify status codes, redaction, idempotency, replay rejection and token rotation.
+  It is explicitly not a hosted TLS deployment.
 - `domain/` — consent-gated, hash-only contact matching, message idempotency/pagination, media
   validation and account-control policy models used by later batches.
 

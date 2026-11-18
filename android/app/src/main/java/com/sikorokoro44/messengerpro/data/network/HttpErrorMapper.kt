@@ -16,7 +16,7 @@ object HttpErrorMapper {
             401 -> when (errorCode) {
                 "CODE_EXPIRED" -> AuthError.CodeExpired()
                 "CODE_CONSUMED" -> AuthError.CodeConsumed()
-                "UNAUTHORIZED" -> AuthError.Unauthorized()
+                "UNAUTHORIZED", "SESSION_REVOKED" -> AuthError.Unauthorized()
                 else -> AuthError.InvalidCode()
             }
 

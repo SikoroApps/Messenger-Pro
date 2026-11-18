@@ -17,6 +17,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Public, non-secret endpoint only. Empty means the backend is not configured.
         buildConfigField("String", "AUTH_BASE_URL", "\"\"")
+        // Optional comma-separated HTTPS host allowlist. Empty permits any HTTPS host.
+        buildConfigField("String", "AUTH_HOST_ALLOWLIST", "\"\"")
     }
 
     buildTypes {

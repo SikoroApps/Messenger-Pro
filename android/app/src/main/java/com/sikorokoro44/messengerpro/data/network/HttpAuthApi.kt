@@ -19,9 +19,10 @@ class HttpAuthApi(
     baseUrl: String,
     client: OkHttpClient,
     policy: HttpClientPolicy = HttpClientPolicy.DEFAULT,
+    allowedHosts: Set<String> = emptySet(),
     private val errorMapper: HttpErrorMapper = HttpErrorMapper,
 ) : AuthApi {
-    private val origin: String = TransportPolicy.requireSecureBaseUrl(baseUrl)
+    private val origin: String = TransportPolicy.requireSecureBaseUrl(baseUrl, allowedHosts)
 
     private val httpClient: OkHttpClient = client.newBuilder()
         .connectTimeout(policy.connectTimeoutMs, TimeUnit.MILLISECONDS)
@@ -35,7 +36,7 @@ class HttpAuthApi(
             put("phone_e164", request.phoneE164)
             put("locale", request.locale)
             put("client", request.client)
-        }) { body ->
+        }, request.idempotencyKey) { body ->
             OtpRequestResponse(
                 requestId = body.getString("request_id"),
                 expiresInSeconds = body.getLong("expires_in"),
@@ -61,13 +62,17 @@ class HttpAuthApi(
     private suspend fun <T> post(
         path: String,
         payload: JSONObject,
+        idempotencyKey: String? = null,
         parse: (JSONObject) -> T,
     ): ApiResult<T> = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
+        val builder = Request.Builder()
             .url(origin + path)
             .post(payload.toString().toRequestBody(JSON_MEDIA_TYPE))
             .header("Accept", "application/json")
-            .build()
+        if (idempotencyKey != null) {
+            builder.header("Idempotency-Key", idempotencyKey)
+        }
+        val request = builder.build()
 
         try {
             httpClient.newCall(request).execute().use { response ->

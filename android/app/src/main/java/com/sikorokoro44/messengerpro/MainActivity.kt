@@ -64,6 +64,12 @@ private fun invalidPhoneMessage(reason: InvalidPhoneReason): String = when (reas
     InvalidPhoneReason.TOO_LONG -> "That phone number is too long."
 }
 
+private fun configuredHostAllowlist(): Set<String> = BuildConfig.AUTH_HOST_ALLOWLIST
+    .split(',')
+    .map { it.trim().lowercase() }
+    .filter { it.isNotEmpty() }
+    .toSet()
+
 private fun otpContext(state: AuthState): Pair<String, String>? = when (state) {
     is AuthState.OtpEntry -> state.phoneE164 to state.requestId
     is AuthState.VerifyingCode -> state.phoneE164 to state.requestId
@@ -98,9 +104,10 @@ private fun IdentityFlow() {
     val context = LocalContext.current
     // The public base URL is a build-time constant with an empty default. No credential is ever
     // part of it. With no valid HTTPS URL the API reports NOT_CONFIGURED and fabricates nothing.
-    val authApi: AuthApi = remember {
-        if (TransportPolicy.isSecureBaseUrl(BuildConfig.AUTH_BASE_URL)) {
-            HttpAuthApi(BuildConfig.AUTH_BASE_URL, OkHttpClient())
+    val allowedHosts = remember { configuredHostAllowlist() }
+    val authApi: AuthApi = remember(allowedHosts) {
+        if (TransportPolicy.isSecureBaseUrl(BuildConfig.AUTH_BASE_URL, allowedHosts)) {
+            HttpAuthApi(BuildConfig.AUTH_BASE_URL, OkHttpClient(), allowedHosts = allowedHosts)
         } else {
             UnconfiguredAuthApi()
         }

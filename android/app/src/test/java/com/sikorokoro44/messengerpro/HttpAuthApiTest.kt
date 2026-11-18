@@ -61,6 +61,42 @@ class HttpAuthApiTest {
     }
 
     @Test
+    fun idempotencyKeyIsSentAndStableForReusedRequest() = runBlocking {
+        val (server, client) = secureServer()
+        try {
+            val response = """{"request_id":"req-idem","expires_in":300,"retry_after":0}"""
+            server.enqueue(MockResponse().setResponseCode(200).setBody(response))
+            server.enqueue(MockResponse().setResponseCode(200).setBody(response))
+            val request = OtpRequest("+26876123456", "ss-ZA")
+            val api = server.api(client)
+            assertTrue(api.requestOtp(request) is ApiResult.Success)
+            assertTrue(api.requestOtp(request) is ApiResult.Success)
+
+            val first = server.takeRequest()
+            val second = server.takeRequest()
+            val firstKey = first.getHeader("Idempotency-Key")
+            assertFalse(firstKey.isNullOrBlank())
+            assertEquals(firstKey, second.getHeader("Idempotency-Key"))
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    fun sessionRevokedErrorMapsToUnauthorized() = runBlocking {
+        val (server, client) = secureServer()
+        try {
+            server.enqueue(
+                MockResponse().setResponseCode(401).setBody("""{"error":"SESSION_REVOKED"}"""),
+            )
+            val result = server.api(client).refresh(RefreshRequest("r1"))
+            assertTrue((result as ApiResult.Failure).error is AuthError.Unauthorized)
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
     fun verificationAndSessionCallsParseTokens() = runBlocking {
         val (server, client) = secureServer()
         try {
@@ -132,6 +168,20 @@ class HttpAuthApiTest {
         val (server, client) = secureServer()
         try {
             HttpAuthApi("http://localhost:${server.port}", client)
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun hostOutsideAllowlistIsRejectedAtConstruction() {
+        val (server, client) = secureServer()
+        try {
+            HttpAuthApi(
+                "https://localhost:${server.port}",
+                client,
+                allowedHosts = setOf("api.example.com"),
+            )
         } finally {
             server.shutdown()
         }

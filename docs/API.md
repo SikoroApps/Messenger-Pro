@@ -2,13 +2,15 @@
 
 The client contract is defined in `android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/AuthApi.kt`
 and implemented over HTTPS by `HttpAuthApi.kt`. The server-side rules are implemented by the
-reference core in `android/backend/` and are exercised in CI without credentials.
+reference core in `android/backend/` and are exercised in CI without credentials. A loopback-only
+HTTP adapter (`android/backend/.../AuthHttp.kt`) lets the same JSON contract be tested over real
+sockets; it is a test harness, not a hosted TLS deployment.
 
 ## Public endpoints
 
 | Method | Path | Request | Success | Failure codes |
 | --- | --- | --- | --- | --- |
-| POST | `/auth/otp/request` | `{ phone_e164, locale, client }` | `{ request_id, expires_in, retry_after }` | `INVALID_PHONE`, `RATE_LIMITED`, `COOLDOWN_ACTIVE`, `PROVIDER_UNAVAILABLE` |
+| POST | `/auth/otp/request` | `{ phone_e164, locale, client }` + `Idempotency-Key` header | `{ request_id, expires_in, retry_after }` | `INVALID_PHONE`, `RATE_LIMITED`, `COOLDOWN_ACTIVE`, `PROVIDER_UNAVAILABLE` |
 | POST | `/auth/otp/verify` | `{ phone_e164, request_id, code }` | `{ verified, account_state, access_token, refresh_token, expires_in }` | `INVALID_CODE`, `CODE_EXPIRED`, `TOO_MANY_ATTEMPTS`, `CODE_CONSUMED`, `REQUEST_NOT_FOUND` |
 | POST | `/auth/session/refresh` | `{ refresh_token }` | rotated token pair | `SESSION_REVOKED` |
 | POST | `/auth/session/logout` | `{ refresh_token }` | `{}` | generic failure |
@@ -23,6 +25,23 @@ Rules enforced by the reference core:
 - Errors use stable codes and constant generic user messages so registration state is not
   discoverable. Details from upstream providers never reach the client.
 
+## Loopback HTTP adapter status mapping
+
+`AuthHttpHandler` maps reference-core failures to stable HTTP responses. Error bodies contain only
+an `error` code, a constant generic `message` and an optional `retry_after`; they never contain a
+phone number, OTP, token, provider detail or stack trace.
+
+| Failure | Status | Retry-After |
+| --- | --- | --- |
+| `INVALID_PHONE`, `INVALID_CODE`, `REQUEST_NOT_FOUND` | 400 | no |
+| `CODE_EXPIRED`, `CODE_CONSUMED`, `SESSION_REVOKED` | 401 | no |
+| `RATE_LIMITED`, `COOLDOWN_ACTIVE`, `TOO_MANY_ATTEMPTS` | 429 | yes |
+| `PROVIDER_UNAVAILABLE`, `UNAVAILABLE` | 503 | no |
+
+The client sends one fresh `Idempotency-Key` per `OtpRequest` instance, and the adapter scopes it
+to a keyed hash of the submitted number. Reusing the same request object after a transport failure
+therefore cannot send a second SMS or read another number's cached result.
+
 ## Transport
 
 `TransportPolicy` requires an `https` scheme, a host, and no embedded credentials, query string
@@ -31,6 +50,6 @@ TLS can be exercised against a local test server; this is not a downgrade of tra
 
 ## Not yet deployed
 
-These contracts are implemented in code and unit-tested, but no hosted endpoint exists. Real
-end-to-end delivered-code registration remains blocked on a deployed backend and an SMS provider
-with `+268` delivery. See `docs/BATCH_2_PLAN.md`.
+These contracts are implemented in code and unit-tested, including real loopback HTTP socket tests,
+but no hosted TLS endpoint exists. Real end-to-end delivered-code registration remains blocked on a
+deployed backend and an SMS provider with `+268` delivery. See `docs/BATCH_2_PLAN.md`.

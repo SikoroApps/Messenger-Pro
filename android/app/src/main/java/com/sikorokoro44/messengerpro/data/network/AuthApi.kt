@@ -1,5 +1,7 @@
 package com.sikorokoro44.messengerpro.data.network
 
+import java.util.UUID
+
 /** Stable, client-safe error surface. No OTP value or raw phone number is ever carried in an error. */
 sealed interface AuthError {
     val code: String
@@ -105,6 +107,8 @@ data class OtpRequest(
     val phoneE164: String,
     val locale: String,
     val client: String = "android",
+    /** Stable per request attempt so a transport retry cannot send a second SMS. */
+    val idempotencyKey: String = UUID.randomUUID().toString(),
 )
 
 data class OtpRequestResponse(
