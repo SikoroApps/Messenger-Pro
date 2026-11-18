@@ -93,6 +93,7 @@ jobs:
           PACKAGE="$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | sed -n "s/^package: name='\([^']*\)'.*/\1/p")"
           echo "APK package name: $PACKAGE"
           test "$PACKAGE" = "com.sikorokoro44.messengerpro.debug"
+          echo "Debug APK SHA-256: $(sha256sum "$APK" | awk '{print $1}')"
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
