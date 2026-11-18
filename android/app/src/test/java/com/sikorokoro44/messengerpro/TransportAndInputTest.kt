@@ -3,6 +3,8 @@ package com.sikorokoro44.messengerpro
 import com.sikorokoro44.messengerpro.data.auth.OtpInputFormatter
 import com.sikorokoro44.messengerpro.data.auth.PhoneInputFormatter
 import com.sikorokoro44.messengerpro.data.network.AuthError
+import com.sikorokoro44.messengerpro.data.network.BackoffJitter
+import com.sikorokoro44.messengerpro.data.network.FullJitter
 import com.sikorokoro44.messengerpro.data.network.HttpClientPolicy
 import com.sikorokoro44.messengerpro.data.network.HttpErrorMapper
 import com.sikorokoro44.messengerpro.data.network.RetryAfterParser
@@ -14,6 +16,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.random.Random
+
+private class FixedJitter : BackoffJitter {
+    override fun apply(exponentialDelayMs: Long): Long = exponentialDelayMs / 2
+}
 
 class TransportAndInputTest {
     @Test
@@ -57,14 +64,32 @@ class TransportAndInputTest {
     }
 
     @Test
-    fun retryAndBudgetAreBounded() {
-        val policy = RetryPolicy()
-        assertEquals(500L, policy.delayFor(1))
-        assertEquals(1_000L, policy.delayFor(2))
-        assertEquals(2_000L, policy.delayFor(3))
-        assertEquals(8_000L, policy.delayFor(10))
+    fun retryPolicyUsesBoundedJitteredBackoffAndIdempotencyGate() {
+        val policy = RetryPolicy(jitter = FixedJitter())
+        assertEquals(250L, policy.delayFor(1))
+        assertEquals(500L, policy.delayFor(2))
+        assertEquals(1_000L, policy.delayFor(3))
+        assertEquals(4_000L, policy.delayFor(10))
         assertFalse(runCatching { RetryPolicy(maxAttempts = 99) }.isSuccess)
 
+        assertTrue(policy.shouldRetry(1, transient = true, idempotent = true))
+        assertFalse(policy.shouldRetry(1, transient = true, idempotent = false))
+        assertFalse(policy.shouldRetry(1, transient = false, idempotent = true))
+        assertFalse(policy.shouldRetry(3, transient = true, idempotent = true))
+    }
+
+    @Test
+    fun fullJitterStaysInsideTheConfiguredWindow() {
+        val policy = RetryPolicy(jitter = FullJitter(Random(20261118L)))
+        val delays = (1..20).map { policy.delayFor(2) }
+
+        assertTrue(delays.all { it in 1L..1_000L })
+        assertTrue(delays.toSet().size > 1)
+        assertTrue(RetryPolicy(jitter = FullJitter(Random(7L))).delayFor(50) <= 8_000L)
+    }
+
+    @Test
+    fun retryBudgetIsHardCapped() {
         val budget = RetryBudget(maxCalls = 2)
         assertTrue(budget.canSpend())
         budget.spend()
