@@ -7,27 +7,43 @@ data class Account(
     val phone: String,
     val state: String,
     val createdAt: Long,
+    val displayName: String? = null,
 )
 
 interface AccountRepository {
     fun findByPhone(phone: String): Account?
+    fun findById(id: String): Account?
     fun upsertByPhone(phone: String, now: Long): Account
+    fun setDisplayName(id: String, displayName: String): Account?
     fun count(): Int
 }
 
 /** An account is created only after a successful server-side verification. */
 class InMemoryAccountRepository(private val ids: IdGenerator) : AccountRepository {
     private val accounts = mutableMapOf<String, Account>()
+    private val idsByPhone = mutableMapOf<String, String>()
 
     @Synchronized
-    override fun findByPhone(phone: String): Account? = accounts[phone]
+    override fun findByPhone(phone: String): Account? = idsByPhone[phone]?.let { accounts[it] }
+
+    @Synchronized
+    override fun findById(id: String): Account? = accounts[id]
 
     @Synchronized
     override fun upsertByPhone(phone: String, now: Long): Account {
-        accounts[phone]?.let { return it }
+        findByPhone(phone)?.let { return it }
         val account = Account(ids.newId(), phone, "active", now)
-        accounts[phone] = account
+        accounts[account.id] = account
+        idsByPhone[phone] = account.id
         return account
+    }
+
+    @Synchronized
+    override fun setDisplayName(id: String, displayName: String): Account? {
+        val account = accounts[id] ?: return null
+        val updated = account.copy(displayName = displayName)
+        accounts[id] = updated
+        return updated
     }
 
     @Synchronized
@@ -74,6 +90,7 @@ class AuthService(
     private val hasher = OtpHasher(config.pepper)
     private val codeGenerator = OtpCodeGenerator()
     private val idempotency = mutableMapOf<String, Pair<Long, OtpRequestResult>>()
+    private val accountAccess = AuthorizedAccountAccess(accounts, sessions, clock)
 
     data class OtpRequestResult(
         val requestId: String,
@@ -217,6 +234,17 @@ class AuthService(
             audit?.record(AuditAction.SESSION_REVOKED, refreshToken, "logout", AuditOutcome.SUCCESS)
         }
     }
+
+    /**
+     * Reads one account row for the caller authenticated by [refreshToken]. The target id is
+     * still checked against the session-owned account id, so a caller cannot read another row by
+     * supplying a different id.
+     */
+    fun readOwnAccount(refreshToken: String, accountId: String): Account =
+        accountAccess.read(tokens.callerFor(refreshToken), accountId)
+
+    fun updateOwnDisplayName(refreshToken: String, accountId: String, displayName: String): Account =
+        accountAccess.updateDisplayName(tokens.callerFor(refreshToken), accountId, displayName)
 }
 
 /** In-memory wiring of the reference implementation, used by CI and local review. */

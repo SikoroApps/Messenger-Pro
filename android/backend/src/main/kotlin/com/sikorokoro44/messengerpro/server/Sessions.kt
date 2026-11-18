@@ -124,6 +124,18 @@ class TokenService(
         return Tokens(accessToken, refreshToken, accessTtlSeconds, session.id)
     }
 
+    /** Resolves an authenticated caller only from a live, unconsumed server-side session. */
+    fun callerFor(refreshToken: String): CallerPrincipal {
+        val hash = hashRefresh(refreshToken)
+        if (sessions.isConsumed(hash)) throw AuthException(AuthFailure.SESSION_REVOKED)
+        val session = sessions.findByRefreshHash(hash)
+            ?: throw AuthException(AuthFailure.SESSION_REVOKED)
+        if (session.revokedAt != null || session.expiresAt <= clock.nowMillis()) {
+            throw AuthException(AuthFailure.SESSION_REVOKED)
+        }
+        return CallerPrincipal(session.accountId, session.id)
+    }
+
     fun rotate(refreshToken: String): Tokens {
         val hash = hashRefresh(refreshToken)
         if (sessions.isConsumed(hash)) {
