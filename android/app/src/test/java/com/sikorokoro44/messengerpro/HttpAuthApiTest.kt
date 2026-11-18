@@ -29,10 +29,10 @@ class HttpAuthApiTest {
             .addTrustedCertificate(held.certificate)
             .build()
         val server = MockWebServer()
-        server.useHttps(certificates.sslSocketFactory, false)
+        server.useHttps(certificates.sslSocketFactory(), false)
         server.start()
         val client = OkHttpClient.Builder()
-            .sslSocketFactory(certificates.sslSocketFactory, certificates.trustManager)
+            .sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager)
             .build()
         return server to client
     }
