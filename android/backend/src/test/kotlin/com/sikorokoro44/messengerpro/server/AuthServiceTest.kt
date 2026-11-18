@@ -27,13 +27,14 @@ class AuthServiceTest {
         cooldownMs: Long = 0L,
         otpTtlMs: Long = 5 * 60 * 1000L,
         maxAttempts: Int = 5,
+        perPhoneLimit: Int = 100,
     ) = ServerConfig(
         pepper = "server-pepper-do-not-commit".toByteArray(),
         environment = "test",
         cooldownMs = cooldownMs,
         otpTtlMs = otpTtlMs,
         maxAttempts = maxAttempts,
-        perPhoneLimit = 100,
+        perPhoneLimit = perPhoneLimit,
         perIpLimit = 1000,
         globalLimit = 10_000,
     )

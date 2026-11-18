@@ -19,6 +19,7 @@ interface SessionRepository {
     fun markConsumed(hash: String, accountId: String)
     fun revoke(sessionId: String, at: Long): Boolean
     fun revokeAllForAccount(accountId: String, at: Long)
+    fun count(): Int
 }
 
 /** In-memory reference implementation. The deployed adapter persists hashes only. */
@@ -62,6 +63,9 @@ class InMemorySessionRepository : SessionRepository {
             }
         }
     }
+
+    @Synchronized
+    override fun count(): Int = sessions.size
 }
 
 data class Tokens(
