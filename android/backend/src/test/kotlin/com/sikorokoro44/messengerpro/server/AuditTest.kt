@@ -94,15 +94,25 @@ class AuditTest {
             rateHarness.service.requestOtp(phone, "ip-hash")
         }
 
+        // The cooldown harness records a resend burst; the rate harness disables the cooldown and
+        // records a quota hit instead. Neither event may carry a phone, IP, code or message body.
+        assertEquals(
+            listOf(AbuseSignal.OTP_REQUEST_BURST),
+            cooldownHarness.abuseLog.all().map { it.signal },
+        )
+        assertEquals(
+            listOf(AbuseSignal.RATE_LIMIT_HIT),
+            rateHarness.abuseLog.all().map { it.signal },
+        )
         for (h in listOf(cooldownHarness, rateHarness)) {
-            val signals = h.abuseLog.all().map { it.signal }
-            assertTrue(AbuseSignal.OTP_REQUEST_BURST in signals)
-            val dump = h.abuseLog.all().toString()
+            val events = h.abuseLog.all()
+            assertTrue(events.isNotEmpty())
+            val dump = events.toString()
             assertFalse(dump.contains(phone))
             assertFalse(dump.contains("ip-hash"))
-            assertTrue(h.abuseLog.all().all { it.subjectHash.length == 64 })
+            assertTrue(events.all { it.subjectHash.length == 64 })
+            assertTrue(events.all { it.signal in setOf(AbuseSignal.OTP_REQUEST_BURST, AbuseSignal.RATE_LIMIT_HIT) })
         }
-        assertTrue(AbuseSignal.RATE_LIMIT_HIT in rateHarness.abuseLog.all().map { it.signal })
     }
 
     @Test
