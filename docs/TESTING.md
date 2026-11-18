@@ -8,7 +8,7 @@ local Android SDK requirement. A passing status is evidence only for what actual
 | Job / task | Suite | Evidence artifact |
 | --- | --- | --- |
 | `verify` → `:app:testDebugUnitTest` | Android JVM unit tests (normalisation, state machine, HTTP/TLS contract, sessions, retry, redaction) | `messenger-pro-unit-test-results` |
-| `verify` → `:backend:test` | Server-authoritative OTP/session core, loopback HTTP contract adapter, SMS receipt rules and shared domain primitives | `messenger-pro-backend-test-results` |
+| `verify` → `:backend:test` | Server-authoritative OTP/session core, loopback HTTP contract adapter, SMS receipt rules, keyed-hash audit/abuse logging and shared domain primitives | `messenger-pro-backend-test-results` |
 | `verify` → `:app:lintDebug` | Static analysis | `messenger-pro-lint` |
 | `verify` → `:app:assembleDebug` | Debug APK + package-name assertion | `messenger-pro-debug` |
 | `device-smoke` → `connectedDebugAndroidTest` | API 35 x86_64 emulator with KVM | `messenger-pro-device-test-results` |
@@ -27,4 +27,7 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 `TESTED` requires passing automated tests for the implemented slice. `COMPLETE` additionally
 requires the full prerequisite chain and the runtime/device evidence named in the feature's
-`test_requirement`. No status is advanced to imply deployment that has not happened.
+`test_requirement`. No status is advanced to imply deployment that has not happened. A
+CI-tested reference-core capability does not by itself advance a catalogue row whose prerequisite
+chain is still open; the audit/abuse work is recorded in `docs/PROGRESS.md` while `MP-114` and
+`MP-116` remain `NOT_STARTED`.
