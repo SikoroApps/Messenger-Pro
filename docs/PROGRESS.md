@@ -2,7 +2,7 @@
 
 ## Current state
 Branch `main`, verified HEAD `5679a9be2ae6b9e221abe11bb6d883544e586e2c`.
-Android CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 — **success on the exact HEAD**, both jobs green.
+Android CI run 51, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44263462812 — **success on the exact code HEAD `5679a9be2ae6b9e221abe11bb6d883544e586e2c`**, both jobs green. The subsequent documentation-only commit `089b4904ed8dd76cbfe4a059bdc25b1bf5db544c` was re-verified by run `44265679115` (success); all test counts and checksums below refer to run 51.
 
 - JVM unit tests (`:app:testDebugUnitTest`): 53 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
 - Server-authoritative core tests (`:backend:test`): 34 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).

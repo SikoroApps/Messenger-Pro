@@ -2,7 +2,8 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Verified HEAD: `5679a9be2ae6b9e221abe11bb6d883544e586e2c` — `test: assert manifest cleartext and SMS permission policy`.
+- Current HEAD: `089b4904ed8dd76cbfe4a059bdc25b1bf5db544c` — documentation-only, re-verified by CI run `44265679115` (success).
+- Last code-changing HEAD with quantified evidence: `5679a9be2ae6b9e221abe11bb6d883544e586e2c` — `test: assert manifest cleartext and SMS permission policy`.
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
@@ -33,8 +34,9 @@
 | 50 / `44261505452` | `9c5146a` | success | 52 app JVM tests, 34 backend JVM tests, 11 emulator tests, lint, debug APK |
 | `44263375793` | `a719ca4` | cancelled | documentation-only push superseded by the branch concurrency rule |
 | 51 / `44263462812` | `5679a9b` | success | 53 app JVM tests (new manifest assertion), 34 backend JVM tests, 11 emulator tests, lint, debug APK |
+| `44265679115` | `089b490` | success | documentation-only commit re-verified; evidence below stays on run 51 |
 
-Latest evidence is run 51 on the exact HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14408883350`, `14408574099`, `14408692985`, `14409566167`, `14409845114` respectively).
+Latest code evidence is run 51 on the exact code HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14408883350`, `14408574099`, `14408692985`, `14409566167`, `14409845114` respectively).
 Latest debug APK SHA-256: `2539d8015ffd08437e4da83945877782c70cda3fe39ad052147194f186da08c0`.
 
 ## Exact blockers
