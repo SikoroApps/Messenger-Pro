@@ -2,14 +2,14 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Verified HEAD: `6c254112b99e64ba62efbbbcb00b5bd90a17c64e` — `test: exercise auth contract over loopback HTTP`.
+- Verified HEAD: `cda3bc096d9aa1a87f5b03f7a259539b21029348` — `fix: place SMS OTP extractor in the package directory`.
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
 ## Work completed
 - Batch 1 foundation COMPLETE (CI runs 12 and 13).
 - Batch 2 client boundary implemented and CI-tested through run 19, then a server-authoritative reference core added in `android/backend/` (commits `c7a528c`, `2a76f5b`, `eb9d991`).
-- Metadata-only SMS delivery receipt core added and verified in run 30 (`d295336`); loopback HTTP adapter, scoped idempotency, client error mapping and host allowlist added and verified in run 32 (`6c25411`).
+- Metadata-only SMS delivery receipt core added and verified in run 30 (`d295336`); loopback HTTP adapter, scoped idempotency, client error mapping and host allowlist added and verified in run 32 (`6c25411`); SMS OTP message extractor added and verified in run 35 (`cda3bc0`).
 - CI baseline repaired after the TLS/HTTP transport commit: `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
 - Shared domain primitives for later batches (privacy, messaging, media, account controls) implemented with JVM tests.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
@@ -21,9 +21,10 @@
 | 29 / `44246930798` | `eb9d991` | success | 37 app JVM tests, 17 backend JVM tests, 8 emulator tests, lint, debug APK |
 | 30 / `44249004280` | `d295336` | success | 37 app JVM tests, 22 backend JVM tests, 8 emulator tests, lint, debug APK |
 | 32 / `44250745206` | `6c25411` | success | 40 app JVM tests, 28 backend JVM tests, 9 emulator tests, lint, debug APK |
+| 35 / `44252590103` | `cda3bc0` | success | 44 app JVM tests, 28 backend JVM tests, 9 emulator tests, lint, debug APK |
 
-Latest evidence is run 32 on the exact HEAD. Artifacts are published under that run as `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results`.
-Latest debug APK SHA-256: `2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60`.
+Latest evidence is run 35 on the exact HEAD. Artifacts are published under that run as `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results`.
+Latest debug APK SHA-256: `d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8`.
 
 ## Exact blockers
 1. No Supabase project or credentials → no deployed schema/RLS/Edge Functions; server-authorised behaviour cannot be verified at runtime.

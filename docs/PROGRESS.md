@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `6c254112b99e64ba62efbbbcb00b5bd90a17c64e`.
-Android CI run 32, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 — **success on the exact HEAD**, both jobs green.
+Branch `main`, verified HEAD `cda3bc096d9aa1a87f5b03f7a259539b21029348`.
+Android CI run 35, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 — **success on the exact HEAD**, both jobs green.
 
-- JVM unit tests (`:app:testDebugUnitTest`): 40 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
+- JVM unit tests (`:app:testDebugUnitTest`): 44 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
 - Server-authoritative core tests (`:backend:test`): 28 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator tests (API 35, KVM x86_64): 9 passed, 0 failures (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8`.
 
 ## Work completed in this segment
 - Repaired a broken CI baseline at HEAD: TLS helper invocation, Compose test-tag/editable-text assertions, HTTPS base-url policy for local TLS test servers, and a real `org.json` implementation for JVM unit tests. Commits `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
@@ -17,6 +17,8 @@ Android CI run 32, https://github.com/SikoroApps/Messenger-Pro/actions/runs/4425
 - Added metadata-only SMS delivery receipt core: provider-independent hand-off, redacted event log, receipt matching/terminal-state rules and generic failure categories with 5 JVM tests. Commit `d295336`; CI run 30 (`44249004280`) was green with 22 backend tests.
 - Added a loopback-only HTTP adapter for the JSON auth contract with real-socket tests for code/token redaction, scoped idempotency, stable status codes, cooldown `Retry-After`, replay rejection, rotation reuse, logout and provider failure. Added client idempotency headers and `SESSION_REVOKED` error mapping. Commit `6c25411`; CI run 32 is green.
 - Preserved and tested concurrent host-allowlist hardening: optional HTTPS host allowlist from public build config, rejected at `HttpAuthApi` construction and covered by client tests.
+- Added a pure-JVM `SmsOtpExtractor` with retriever-hash validation, user-consent parsing and ambiguity rejection; 4 unit tests added in run 35. OS retriever/Play-services wiring and delivered-message evidence remain BLOCKED.
+- Advanced 9 already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; no row was marked `COMPLETE`.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note

@@ -863,10 +863,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "low: hanging requests degrade sign-in and hide failures",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: timeout configuration unit tests",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. TransportAndInputTest.httpPolicyIsBounded and HttpAuthApi construction apply bounded connect/read/write/call timeouts.",
+      "blocker": "Client-only evidence: no hosted backend, real SMS delivery or device permission-flow evidence."
     },
     {
       "feature_id": "MP-051",
@@ -935,9 +935,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: formatting bugs can corrupt the submitted number",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: formatting round-trip unit tests",
-      "verification_evidence": "",
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. TransportAndInputTest.inputFormattersSanitizeWithoutChangingCanonicalRules and IdentityScreenTest.phoneFieldFormatsNationalInputWithoutChangingNormalizerRules cover phone formatting and canonical value preservation.",
       "blocker": ""
     },
     {
@@ -1097,10 +1097,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: autofill parsing errors can submit the wrong code",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: autofill extraction unit test with sample message",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. SmsOtpExtractorTest verifies 6-digit extraction from retriever messages with a matching app hash, rejects mismatched/missing hashes and ambiguous codes, and supports a hashless user-consent message shape. OS retriever wiring and Play Services hashing are not evidenced.",
+      "blocker": "OS SMS Retriever integration, Play app hash and delivered-message device evidence are not available."
     },
     {
       "feature_id": "MP-064",
@@ -1133,9 +1133,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: no fallback blocks sign-in on some devices",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: manual entry Compose test",
-      "verification_evidence": "",
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. IdentityScreenTest.codeFieldAcceptsOnlySixDigitsAndEnablesVerification and offlineStateShowsNetworkErrorWithoutDisablingManualEntry prove manual entry remains available on an API 35 emulator.",
       "blocker": ""
     },
     {
@@ -1151,9 +1151,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: input bugs cause avoidable failed attempts",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: code field interaction test",
-      "verification_evidence": "",
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. IdentityScreenTest.codeFieldAcceptsOnlySixDigitsAndEnablesVerification and TransportAndInputTest.inputFormattersSanitizeWithoutChangingCanonicalRules cover code sanitisation and the enabled verification state.",
       "blocker": ""
     },
     {
@@ -1277,9 +1277,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: client timer alone is bypassable but improves UX",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: cooldown countdown Compose test",
-      "verification_evidence": "",
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. TransportAndInputTest.cooldownCountdownUsesInjectedClock and IdentityScreenTest.otpEntryShowsRedactedNumberAndCooldown cover the client countdown; server cooldown enforcement is separately evidenced in MP-074.",
       "blocker": ""
     },
     {
@@ -1619,10 +1619,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "medium: unbounded refresh can loop or override revocation",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: refresh flow unit tests",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. SessionManagerTest.nearExpiryRotatesThroughServerAndPersistsNewTokens, failedRotationClearsLocalSession and logoutRevokesRemotelyAndPurgesLocally, plus AuthenticatedRequestRunnerTest.unauthorizedResponseTriggersOneRefreshAndReplay and failedRefreshNeverReplaysTheOperation cover bounded refresh and clean failure.",
+      "blocker": "Client-only evidence: no hosted backend, real SMS delivery or device permission-flow evidence."
     },
     {
       "feature_id": "MP-093",
@@ -1727,10 +1727,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "medium: duplicate code requests waste SMS delivery",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: retry budget unit tests",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. TransportAndInputTest.retryAndBudgetAreBounded covers the bounded retry budget; HttpAuthApiTest.idempotencyKeyIsSentAndStableForReusedRequest and AuthHttpTest.idempotencyKeyOverHttpPreventsDuplicateSms cover stable idempotency for sign-in retries.",
+      "blocker": "Client-only evidence: no hosted backend, real SMS delivery or device permission-flow evidence."
     },
     {
       "feature_id": "MP-099",
@@ -1745,10 +1745,10 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "none: connectivity UI only",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: offline state Compose test",
-      "verification_evidence": "",
-      "blocker": ""
+      "verification_evidence": "Android CI run 35 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44252590103 success on cda3bc096d9aa1a87f5b03f7a259539b21029348: 44 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 d2b25cc6dd12acbc9b47e4d441049077bf00519b1a2d9a27f2db1c813398fbf8. MainActivity gates sign-in on AndroidNetworkStatus and IdentityScreenTest.offlineStateShowsNetworkErrorWithoutDisablingManualEntry displays a safe network error on the API 35 emulator.",
+      "blocker": "Client-only evidence: no hosted backend, real SMS delivery or device permission-flow evidence."
     },
     {
       "feature_id": "MP-100",
