@@ -1382,13 +1382,13 @@
         "MP-040",
         "MP-078"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/ (reference core); backend/ contracts and migrations (not present in repository)",
+      "backend_requirement": "Reference core implemented and CI-tested; deployed backend still required. Supabase Edge Function contract; not configured.",
       "security_impact": "high: replay would allow account takeover",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: replay rejection test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 63 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44275896011 success on d1181d8a0b7bd11c39515012be30e4fd19e1bba2: 57 app JVM tests, 42 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a. OtpRecord.consumedAt is a server-side consumed marker guarded by the atomic OtpRepository.consume contract; AuthServiceTest.correctCodeVerifiesExactlyOnceThenReplayIsRejected, consumedCodeCannotCreateANewSessionAfterTheOriginalSessionIsRevoked and otpConsumeIsAtomicSingleUse prove a consumed code cannot open a new session even after the original session is revoked, while AuthHttpTest and AuditTest cover the 401 CODE_CONSUMED response and keyed-hash REPLAY_ATTEMPT signal. This is reference-core and loopback HTTP evidence only; no deployed Edge Function, durable SQL single-statement consume or RLS policy is evidenced.",
+      "blocker": "Supabase project, backend credentials, durable atomic SQL consume and Edge Function deployment not configured; runtime replay protection is unverified."
     },
     {
       "feature_id": "MP-080",

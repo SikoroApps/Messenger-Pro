@@ -2,8 +2,8 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Current HEAD: `dc98268b7213d83aa8f83c831e953224c3ea5923` — `feat: record bounded device labels on sessions`; CI run 60 `44272939936` (success, both jobs).
-- Previous code HEAD: `887e6bed31b9ba4456bec232ecf56ff8999d1e37` — `feat: localize verification message contract`; CI run 58 `44269961154` (success).
+- Current HEAD: `d1181d8a0b7bd11c39515012be30e4fd19e1bba2` — `fix: align replay test with retained revoked session records`; CI run 63 `44275896011` (success, both jobs).
+- Earlier code HEAD: `dc98268b7213d83aa8f83c831e953224c3ea5923` — `feat: record bounded device labels on sessions`; CI run 60 `44272939936` (success).
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
@@ -12,7 +12,7 @@
 - Batch 2 client boundary implemented and CI-tested through run 19, then a server-authoritative reference core added in `android/backend/` (commits `c7a528c`, `2a76f5b`, `eb9d991`).
 - Metadata-only SMS delivery receipt core added and verified in run 31 (`d295336`); loopback HTTP adapter, scoped idempotency, client error mapping and host allowlist added and verified in run 32 (`6c25411`); SMS OTP message extractor added and verified in run 35 (`cda3bc0`); keyed-hash auth audit and generic abuse signals added and verified in run 38 (`763b13a`, `25ba0e5`).
 - Access tokens are now stripped from unrelated requests and attached only to allowlisted HTTPS hosts, including redirects; `MP-091` is `TESTED` from run 47. Runs 41–45 failed on emulator-job test/compile regressions in the new Compose and redirect tests and were resolved through `a34d48f`, `466d112`, `f450c87`, `04ee2ad`, `31917b6` and `2699b59`.
-- Bounded jittered exponential backoff and an explicit transient/idempotent retry gate were added to `RetryPolicy`; `MP-097` is `TESTED` from run 50. An automated manifest assertion now covers disabled cleartext and absence of broad SMS permissions; `MP-048` and `MP-103` are `TESTED` from run 52. A provider-independent `FailoverSmsGateway` now retries only clean pre-handoff failures and refuses ambiguous ones; `MP-071` is `TESTED` from run 54. Locale-tagged English and siSwati short verification templates and Unicode-safe keyword boundaries are tested through `SmsOtpExtractor`; `MP-072` is `TESTED` from run 58, with no claim of real delivery or human-reviewed siSwati copy. Optional 64-character sanitized device labels are now recorded on session records and preserved across refresh, with a loopback HTTP test; `MP-095` is `TESTED` from run 60, with no durable RLS storage or device-control UI. Runs 48–49 and runs 51, 55 were documentation-only runs cancelled by the branch concurrency rule; runs 50, 52, 53, 54, 56–60 are green.
+- Bounded jittered exponential backoff and an explicit transient/idempotent retry gate were added to `RetryPolicy`; `MP-097` is `TESTED` from run 50. An automated manifest assertion now covers disabled cleartext and absence of broad SMS permissions; `MP-048` and `MP-103` are `TESTED` from run 52. A provider-independent `FailoverSmsGateway` now retries only clean pre-handoff failures and refuses ambiguous ones; `MP-071` is `TESTED` from run 54. Locale-tagged English and siSwati short verification templates and Unicode-safe keyword boundaries are tested through `SmsOtpExtractor`; `MP-072` is `TESTED` from run 58, with no claim of real delivery or human-reviewed siSwati copy. Optional 64-character sanitized device labels are now recorded on session records and preserved across refresh, with a loopback HTTP test; `MP-095` is `TESTED` from run 60, with no durable RLS storage or device-control UI. Consumed-code replay tests now cover the atomic single-use contract and replay after the original session is revoked; `MP-079` is `TESTED` from run 63, with no deployed Edge Function or durable SQL consume. Runs 48–49 and runs 51, 55 were documentation-only runs cancelled by the branch concurrency rule; run 62 failed on an incorrect test expectation that session records are deleted on logout (corrected in `d1181d8`); runs 50, 52–54, 56–61 and 63 are green.
 - CI baseline repaired after the TLS/HTTP transport commit: `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
 - Shared domain primitives for later batches (privacy, messaging, media, account controls) implemented with JVM tests.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
@@ -42,9 +42,12 @@
 | 58 / `44269961154` | `887e6be` | success | 57 app JVM tests (8 extractor cases), 39 backend JVM tests, 11 emulator tests, lint, debug APK |
 | 59 / `44272119380` | `c9491a6` | success | documentation-only commit re-verified; code evidence stays on run 58 |
 | 60 / `44272939936` | `dc98268` | success | 57 app JVM tests, 40 backend JVM tests (new device-session record case), 11 emulator tests, lint, debug APK |
+| 61 / `44274736746` | `6ce1dea` | success | documentation-only commit re-verified; code evidence stays on run 60 |
+| 62 / `44275214421` | `4fb1ceb` | failure | one new replay test wrongly expected session records to be deleted on logout; corrected in `d1181d8`, and the backend artifact upload hit a transient ECONNRESET |
+| 63 / `44275896011` | `d1181d8` | success | 57 app JVM tests, 42 backend JVM tests (new atomic consumed-code cases), 11 emulator tests, lint, debug APK |
 
-Latest code evidence is run 60 / `44272939936` on the exact code HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14412679187`, `14413726198`, `14412822971`, `14412639222`, `14414195012` respectively).
-Latest debug APK SHA-256: `02f0d1e1e8f50e08a8a2e8578e71dd662a75bd5781a7d86faa2d36f23ea3dc76`.
+Latest code evidence is run 63 / `44275896011` on the exact code HEAD. Artifacts `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results` are published under that run (IDs `14415390424`, `14414765968`, `14414343309`, `14415012098`, `14414952035` respectively).
+Latest debug APK SHA-256: `5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
 
 ## Exact blockers
 1. No Supabase project or credentials → no deployed schema/RLS/Edge Functions; server-authorised behaviour cannot be verified at runtime.

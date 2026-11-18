@@ -17,11 +17,11 @@ local Android SDK requirement. A passing status is evidence only for what actual
 
 - It proves the tracked code compiles, the unit/instrumentation suites pass, lint is clean and a
   debug APK with the expected package name is produced on the exact commit SHA.
-- Latest exact code evidence: run 60 `44272939936` on `dc98268b7213d83aa8f83c831e953224c3ea5923` —
-  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 40 backend JVM tests (including 5
-  `SmsFailoverTest` cases and a bounded device-session record case), 11 API 35 emulator tests,
-  0 failures/errors/skips, lint 0 errors/11 warnings, debug APK SHA-256
-  `02f0d1e1e8f50e08a8a2e8578e71dd662a75bd5781a7d86faa2d36f23ea3dc76`.
+- Latest exact code evidence: run 63 `44275896011` on `d1181d8a0b7bd11c39515012be30e4fd19e1bba2` —
+  57 app JVM tests (including 8 `SmsOtpExtractorTest` cases), 42 backend JVM tests (including 5
+  `SmsFailoverTest` cases, a bounded device-session record case and atomic consumed-code replay
+  cases), 11 API 35 emulator tests, 0 failures/errors/skips, lint 0 errors/11 warnings, debug APK
+  SHA-256 `5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
 - It does **not** prove backend deployment, real SMS delivery, permission/revocation behaviour,
   notification delivery, physical-device app lock, signed release, or Play Console rollout.
 - Sandbox or mocked-provider tests are never counted as real `+268` delivery.
@@ -48,10 +48,11 @@ contract case; neither is evidence of deployed enforcement. `SmsFailoverTest` co
 locale-tagged template round trips for `MP-072`, but no delivered SMS, OS retriever consent flow or
 human-reviewed siSwati copy is evidenced. `MP-095` is covered by a loopback test of sanitized,
 bounded device-label creation and rotation continuity; it is not proof of Supabase/RLS persistence
-or a device-control UI.
+or a device-control UI. `MP-079` is covered by atomic `OtpRepository.consume` tests and a replay
+after session revocation; it is not proof of a deployed Edge Function or durable SQL consume.
 
-Latest code evidence: CI run 60 `44272939936`,
-https://github.com/SikoroApps/Messenger-Pro/actions/runs/44272939936, on
-`dc98268b7213d83aa8f83c831e953224c3ea5923` — 57 app JVM tests, 40 backend JVM tests, 11 API 35
+Latest code evidence: CI run 63 `44275896011`,
+https://github.com/SikoroApps/Messenger-Pro/actions/runs/44275896011, on
+`d1181d8a0b7bd11c39515012be30e4fd19e1bba2` — 57 app JVM tests, 42 backend JVM tests, 11 API 35
 emulator tests, lint clean and debug APK SHA-256
-`02f0d1e1e8f50e08a8a2e8578e71dd662a75bd5781a7d86faa2d36f23ea3dc76`.
+`5ae9282c1482c29ddda46bea22657e4ee21401bc504b5acf0fb3c114cef21b3a`.
