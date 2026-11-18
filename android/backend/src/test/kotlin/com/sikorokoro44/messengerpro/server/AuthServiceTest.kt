@@ -101,14 +101,15 @@ class AuthServiceTest {
         val code = sms.lastCode!!
         val verified = h.service.verifyOtp("+26876123456", request.requestId, code)
 
-        // Remove the session the code originally created; the consumed marker must still stand.
+        // Revoke the session the code originally created; the consumed marker must still stand.
         h.service.logout(verified.tokens.refreshToken)
-        assertEquals(0, h.sessions.count())
+        assertNotNull(h.sessions.findById(verified.tokens.sessionId)!!.revokedAt)
+        val sessionsAfterLogout = h.sessions.count()
 
         assertEquals(AuthFailure.CODE_CONSUMED, failureOf {
             h.service.verifyOtp("+26876123456", request.requestId, code)
         })
-        assertEquals(0, h.sessions.count())
+        assertEquals(sessionsAfterLogout, h.sessions.count())
         assertEquals(1, h.accounts.count())
     }
 
