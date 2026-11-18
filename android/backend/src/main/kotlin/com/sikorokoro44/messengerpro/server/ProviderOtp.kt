@@ -20,6 +20,10 @@ interface ProviderOtpRepository {
     fun save(record: ProviderOtpRecord)
     fun find(id: String): ProviderOtpRecord?
     fun invalidateActiveForPhone(phone: String, now: Long)
+    /** Persists an increment before the provider check so retries cannot reset the counter. */
+    fun recordAttempt(id: String, attempts: Int, at: Long)
+    /** Permanently invalidates one request after expiry, cancellation or a policy failure. */
+    fun fail(id: String, at: Long)
     /** Atomic single-use consume; returns false when another caller consumed the request first. */
     fun consume(id: String, at: Long): Boolean
 }
@@ -42,6 +46,16 @@ class InMemoryProviderOtpRepository : ProviderOtpRepository {
                 record.failedAt = now
             }
         }
+    }
+
+    @Synchronized
+    override fun recordAttempt(id: String, attempts: Int, at: Long) {
+        records[id]?.attempts = attempts
+    }
+
+    @Synchronized
+    override fun fail(id: String, at: Long) {
+        records[id]?.failedAt = at
     }
 
     @Synchronized
@@ -84,6 +98,7 @@ class ProviderOtpService(
     )
 
     private val idempotency = mutableMapOf<String, Pair<Long, OtpRequestResult>>()
+    private val accountAccess = AuthorizedAccountAccess(accounts, sessions, clock)
 
     fun requestOtp(phone: String, ipHash: String, idempotencyKey: String? = null): OtpRequestResult {
         if (idempotencyKey != null) {
@@ -175,15 +190,16 @@ class ProviderOtpService(
             throw AuthException(AuthFailure.CODE_CONSUMED)
         }
         if (record.expiresAt <= now) {
-            record.failedAt = now
+            otps.fail(requestId, now)
             throw AuthException(AuthFailure.CODE_EXPIRED)
         }
         if (record.attempts >= config.maxAttempts) {
-            record.failedAt = now
+            otps.fail(requestId, now)
             throw AuthException(AuthFailure.TOO_MANY_ATTEMPTS)
         }
 
         record.attempts++
+        otps.recordAttempt(requestId, record.attempts, now)
         val check = try {
             provider.check(record.verificationId, code)
         } catch (e: ESmsException) {
@@ -199,11 +215,11 @@ class ProviderOtpService(
                 throw AuthException(AuthFailure.INVALID_CODE)
             }
             ManagedOtpStatus.EXPIRED -> {
-                record.failedAt = now
+                otps.fail(requestId, now)
                 throw AuthException(AuthFailure.CODE_EXPIRED)
             }
             ManagedOtpStatus.CANCELED -> {
-                record.failedAt = now
+                otps.fail(requestId, now)
                 throw AuthException(AuthFailure.INVALID_CODE)
             }
             ManagedOtpStatus.UNKNOWN -> throw AuthException(AuthFailure.PROVIDER_UNAVAILABLE)
@@ -218,6 +234,29 @@ class ProviderOtpService(
         audit?.record(AuditAction.OTP_VERIFIED, phone, requestId, AuditOutcome.SUCCESS)
         return VerifyResult(tokens.issue(account.id, deviceLabel), account.state)
     }
+
+    fun refresh(refreshToken: String): Tokens = try {
+        tokens.rotate(refreshToken).also { rotated ->
+            audit?.record(AuditAction.SESSION_ROTATED, refreshToken, rotated.sessionId, AuditOutcome.SUCCESS)
+        }
+    } catch (e: AuthException) {
+        abuse?.record(AbuseSignal.SESSION_REUSE, refreshToken)
+        throw e
+    }
+
+    fun logout(refreshToken: String) {
+        if (tokens.logout(refreshToken)) {
+            audit?.record(AuditAction.SESSION_REVOKED, refreshToken, "logout", AuditOutcome.SUCCESS)
+        }
+    }
+
+    /** Reads an account only when the session-derived principal owns the requested row. */
+    fun readOwnAccount(refreshToken: String, accountId: String): Account =
+        accountAccess.read(tokens.callerFor(refreshToken), accountId)
+
+    /** Updates a display name only when the session-derived principal owns the requested row. */
+    fun updateOwnDisplayName(refreshToken: String, accountId: String, displayName: String): Account =
+        accountAccess.updateDisplayName(tokens.callerFor(refreshToken), accountId, displayName)
 
     private fun mapStartFailure(reason: ESmsFailureReason): AuthFailure = when (reason) {
         ESmsFailureReason.INVALID_RECIPIENT -> AuthFailure.INVALID_PHONE

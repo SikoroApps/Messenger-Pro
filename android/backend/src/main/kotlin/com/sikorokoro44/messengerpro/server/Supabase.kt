@@ -168,6 +168,26 @@ class SupabaseProviderOtpRepository(private val client: SupabaseRestClient) : Pr
         )
     }
 
+    override fun recordAttempt(id: String, attempts: Int, at: Long) {
+        client.execute(
+            path = "/rest/v1/provider_otp_requests?id=eq.${client.encode(id)}" +
+                "&consumed_at=is.null&failed_at=is.null&select=id",
+            method = "PATCH",
+            body = JSONObject().put("attempts", attempts),
+            prefer = "return=representation",
+        )
+    }
+
+    override fun fail(id: String, at: Long) {
+        client.execute(
+            path = "/rest/v1/provider_otp_requests?id=eq.${client.encode(id)}" +
+                "&consumed_at=is.null&select=id",
+            method = "PATCH",
+            body = JSONObject().put("failed_at", at),
+            prefer = "return=representation",
+        )
+    }
+
     override fun consume(id: String, at: Long): Boolean = client.execute(
         path = "/rest/v1/provider_otp_requests?id=eq.${client.encode(id)}" +
             "&consumed_at=is.null&failed_at=is.null&select=id",
