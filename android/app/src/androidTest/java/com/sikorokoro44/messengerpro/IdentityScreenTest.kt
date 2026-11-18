@@ -5,14 +5,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,6 +23,7 @@ import com.sikorokoro44.messengerpro.ui.auth.Countries
 import com.sikorokoro44.messengerpro.ui.auth.Country
 import com.sikorokoro44.messengerpro.ui.auth.OtpEntryScreen
 import com.sikorokoro44.messengerpro.ui.auth.PhoneEntryScreen
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -159,8 +159,7 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("phone_input").assertIsDisplayed()
-        composeRule.onAllNodesWithText("email", substring = true, ignoreCase = true).assertCountEquals(0)
-        composeRule.onAllNodesWithText("password", substring = true, ignoreCase = true).assertCountEquals(0)
+        assertNoAlternateIdentityControls()
 
         composeRule.setContent {
             MaterialTheme {
@@ -177,8 +176,13 @@ class IdentityScreenTest {
             }
         }
         composeRule.onNodeWithTag("code_input").assertIsDisplayed()
-        composeRule.onAllNodesWithText("email", substring = true, ignoreCase = true).assertCountEquals(0)
-        composeRule.onAllNodesWithText("password", substring = true, ignoreCase = true).assertCountEquals(0)
+        assertNoAlternateIdentityControls()
+    }
+
+    private fun assertNoAlternateIdentityControls() {
+        val semantics = composeRule.onRoot().printToString()
+        assertFalse(semantics.contains("email", ignoreCase = true))
+        assertFalse(semantics.contains("password", ignoreCase = true))
     }
 
     @Test
