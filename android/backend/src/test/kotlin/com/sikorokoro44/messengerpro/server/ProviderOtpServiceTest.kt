@@ -10,7 +10,7 @@ import org.junit.Test
 class ProviderOtpServiceTest {
     private companion object {
         const val PHONE = "+26876123456"
-        const val CODE = "000000"
+        const val CODE = "739184"
     }
 
     private class FakeProvider(
