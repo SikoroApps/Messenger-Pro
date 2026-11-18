@@ -200,12 +200,13 @@ class HttpAuthApiTest {
             .build()
         val client = OkHttpClient.Builder()
             .sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager)
-            .dns(Dns { hostname ->
-                if (hostname.equals("redirect.invalid", ignoreCase = true)) {
-                    listOf(InetAddress.getByName("127.0.0.1"))
-                } else {
-                    Dns.SYSTEM.lookup(hostname)
-                }
+            .dns(object : Dns {
+                override fun lookup(hostname: String): List<InetAddress> =
+                    if (hostname.equals("redirect.invalid", ignoreCase = true)) {
+                        listOf(InetAddress.getByName("127.0.0.1"))
+                    } else {
+                        Dns.SYSTEM.lookup(hostname)
+                    }
             })
             .build()
         val first = MockWebServer()
