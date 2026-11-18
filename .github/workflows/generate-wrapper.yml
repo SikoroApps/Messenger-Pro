@@ -1,0 +1,51 @@
+name: Generate Gradle wrapper
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    name: Generate and pin verified Gradle wrapper
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Generate wrapper and pin distribution checksum
+        working-directory: android
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle wrapper --gradle-version 8.9 --distribution-type bin --no-daemon
+          chmod +x gradlew
+          sha="$(curl -fsSL https://services.gradle.org/distributions/gradle-8.9-bin.zip.sha256 | tr -d '[:space:]')"
+          if [ "${#sha}" -ne 64 ]; then
+            echo "Unexpected Gradle distribution checksum length: ${sha}"
+            exit 1
+          fi
+          echo "Gradle 8.9 distribution SHA-256: ${sha}"
+          echo "distributionSha256Sum=${sha}" >> gradle/wrapper/gradle-wrapper.properties
+      - name: Commit generated wrapper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "OpenCode Agent"
+          git config user.email "opencode@users.noreply.github.com"
+          git add android/gradlew android/gradlew.bat android/gradle/wrapper
+          if git diff --cached --quiet; then
+            echo "Wrapper already present and unchanged"
+          else
+            git commit -m "build: add verified Gradle 8.9 wrapper" -m "Generated on GitHub-hosted infrastructure with a pinned distribution SHA-256."
+            git push origin HEAD:main
+          fi
