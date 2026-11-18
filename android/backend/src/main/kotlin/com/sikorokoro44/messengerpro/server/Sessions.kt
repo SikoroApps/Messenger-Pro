@@ -8,11 +8,29 @@ data class Session(
     val refreshHash: String,
     val expiresAt: Long,
     val createdAt: Long,
+    /** Optional, sanitized device description for later device-control workflows. */
+    val deviceLabel: String? = null,
     @Volatile var revokedAt: Long? = null,
 )
 
+/** Keeps optional device labels bounded and free of control characters before persistence. */
+object DeviceLabelPolicy {
+    const val MAX_LENGTH = 64
+
+    fun sanitize(raw: String?): String? {
+        val cleaned = raw?.trim()
+            ?.map { if (it.isISOControl() || it == '<' || it == '>') ' ' else it }
+            ?.joinToString("")
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            ?.take(MAX_LENGTH)
+        return cleaned?.takeIf { it.isNotBlank() }
+    }
+}
+
 interface SessionRepository {
     fun save(session: Session)
+    fun findById(id: String): Session?
     fun findByRefreshHash(hash: String): Session?
     fun isConsumed(hash: String): Boolean
     fun consumedAccount(hash: String): String?
@@ -31,6 +49,9 @@ class InMemorySessionRepository : SessionRepository {
     override fun save(session: Session) {
         sessions[session.id] = session
     }
+
+    @Synchronized
+    override fun findById(id: String): Session? = sessions[id]
 
     @Synchronized
     override fun findByRefreshHash(hash: String): Session? =
@@ -87,7 +108,7 @@ class TokenService(
     fun hashRefresh(refresh: String): String =
         hmacHex(pepper, refresh.toByteArray(StandardCharsets.UTF_8))
 
-    fun issue(accountId: String): Tokens {
+    fun issue(accountId: String, deviceLabel: String? = null): Tokens {
         val accessToken = "a.${ids.newId()}"
         val refreshToken = "r.${ids.newId()}"
         val now = clock.nowMillis()
@@ -97,6 +118,7 @@ class TokenService(
             refreshHash = hashRefresh(refreshToken),
             expiresAt = now + refreshTtlMs,
             createdAt = now,
+            deviceLabel = DeviceLabelPolicy.sanitize(deviceLabel),
         )
         sessions.save(session)
         return Tokens(accessToken, refreshToken, accessTtlSeconds, session.id)
@@ -114,7 +136,7 @@ class TokenService(
             throw AuthException(AuthFailure.SESSION_REVOKED)
         }
         sessions.markConsumed(hash, session.accountId)
-        return issue(session.accountId)
+        return issue(session.accountId, session.deviceLabel)
     }
 
     /** Returns true only when an existing active session was actually revoked. */

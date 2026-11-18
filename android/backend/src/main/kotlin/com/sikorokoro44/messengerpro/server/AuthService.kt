@@ -155,7 +155,12 @@ class AuthService(
         return result
     }
 
-    fun verifyOtp(phone: String, requestId: String, code: String): VerifyResult {
+    fun verifyOtp(
+        phone: String,
+        requestId: String,
+        code: String,
+        deviceLabel: String? = null,
+    ): VerifyResult {
         if (!ServerPhonePolicy.isValidE164(phone) ||
             code.length != OtpCodeGenerator.CODE_LENGTH || !code.all(Char::isDigit)
         ) {
@@ -195,7 +200,7 @@ class AuthService(
 
         val account = accounts.upsertByPhone(phone, now)
         audit?.record(AuditAction.OTP_VERIFIED, phone, requestId, AuditOutcome.SUCCESS)
-        return VerifyResult(tokens.issue(account.id), account.state)
+        return VerifyResult(tokens.issue(account.id, deviceLabel), account.state)
     }
 
     fun refresh(refreshToken: String): Tokens = try {

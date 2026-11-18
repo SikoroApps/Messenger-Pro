@@ -4,6 +4,7 @@ import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.net.URI
@@ -73,10 +74,16 @@ class AuthHttpTest {
         put("client", "android")
     }.toString()
 
-    private fun verifyJson(phone: String, requestId: String, code: String) = JSONObject().apply {
+    private fun verifyJson(
+        phone: String,
+        requestId: String,
+        code: String,
+        deviceLabel: String? = null,
+    ) = JSONObject().apply {
         put("phone_e164", phone)
         put("request_id", requestId)
         put("code", code)
+        deviceLabel?.let { put("device_label", it) }
     }.toString()
 
     private fun tokenJson(token: String) = JSONObject().put("refresh_token", token).toString()
@@ -106,6 +113,36 @@ class AuthHttpTest {
             assertFalse(verified.body().contains(r.sms.lastCode!!))
             assertEquals(1, r.harness.accounts.count())
             assertEquals(1, r.harness.sessions.count())
+        }
+    }
+
+    @Test
+    fun verificationCreatesBoundedDeviceSessionRecordAndPreservesItOnRefresh() {
+        val phone = "+26876123456"
+        rig().use { r ->
+            val requested = r.post("/auth/otp/request", otpRequestJson(phone), "device-idem-1")
+            val requestId = JSONObject(requested.body()).getString("request_id")
+            val verified = r.post(
+                "/auth/otp/verify",
+                verifyJson(phone, requestId, r.sms.lastCode!!, "  Pixel <7>\nPro  "),
+            )
+            assertEquals(200, verified.statusCode())
+            val body = JSONObject(verified.body())
+            val sessionId = body.getString("session_id")
+            val session = r.harness.sessions.findById(sessionId)
+            assertNotNull(session)
+            assertEquals("Pixel 7 Pro", session!!.deviceLabel)
+            assertEquals(1, r.harness.sessions.count())
+
+            val refreshed = r.post(
+                "/auth/session/refresh",
+                tokenJson(body.getString("refresh_token")),
+            )
+            assertEquals(200, refreshed.statusCode())
+            val rotatedId = JSONObject(refreshed.body()).getString("session_id")
+            assertEquals("Pixel 7 Pro", r.harness.sessions.findById(rotatedId)!!.deviceLabel)
+            assertEquals(2, r.harness.sessions.count())
+            assertEquals(64, DeviceLabelPolicy.sanitize("x".repeat(100))!!.length)
         }
     }
 

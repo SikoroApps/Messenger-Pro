@@ -75,10 +75,12 @@ class AuthHttpHandler(
         if (phone.isEmpty() || requestId.isEmpty() || code.length != 6 || !code.all(Char::isDigit)) {
             throw AuthException(AuthFailure.INVALID_CODE)
         }
-        val result = service.verifyOtp(phone, requestId, code)
+        val deviceLabel = payload.optString("device_label").takeIf { it.isNotBlank() }
+        val result = service.verifyOtp(phone, requestId, code, deviceLabel)
         val body = JSONObject().apply {
             put("verified", true)
             put("account_state", result.accountState)
+            put("session_id", result.tokens.sessionId)
             put("access_token", result.tokens.accessToken)
             put("refresh_token", result.tokens.refreshToken)
             put("expires_in", result.tokens.expiresInSeconds)
@@ -100,6 +102,7 @@ class AuthHttpHandler(
     }
 
     private fun tokenBody(tokens: Tokens) = JSONObject().apply {
+        put("session_id", tokens.sessionId)
         put("access_token", tokens.accessToken)
         put("refresh_token", tokens.refreshToken)
         put("expires_in", tokens.expiresInSeconds)
