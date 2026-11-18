@@ -87,8 +87,10 @@ class AuditTest {
         assertFails(AuthFailure.CODE_CONSUMED) {
             h.service.verifyOtp("+26876123456", request.requestId, code)
         }
+        val oldRefresh = verified.tokens.refreshToken
+        h.service.refresh(oldRefresh)
         assertFails(AuthFailure.SESSION_REVOKED) {
-            h.service.refresh(verified.tokens.refreshToken)
+            h.service.refresh(oldRefresh)
         }
 
         val signals = h.abuseLog.all().map { it.signal }
