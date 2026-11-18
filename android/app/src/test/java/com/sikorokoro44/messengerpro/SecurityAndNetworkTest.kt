@@ -43,6 +43,23 @@ class SecurityAndNetworkTest {
     }
 
     @Test
+    fun expiredConsumedAndThrottledErrorsCarrySafeContractData() {
+        val expired = AuthError.CodeExpired()
+        assertEquals("CODE_EXPIRED", expired.code)
+        assertFalse(expired.retryable)
+        assertNull(expired.retryAfterSeconds)
+
+        val consumed = AuthError.CodeConsumed()
+        assertEquals("CODE_CONSUMED", consumed.code)
+        assertFalse(consumed.retryable)
+
+        val throttled = AuthError.RateLimited(retryAfterSeconds = 45L)
+        assertEquals("RATE_LIMITED", throttled.code)
+        assertEquals(45L, throttled.retryAfterSeconds)
+        assertTrue(throttled.retryable)
+    }
+
+    @Test
     fun unconfiguredBackendNeverProducesSuccessOrSession() = runBlocking {
         val api = UnconfiguredAuthApi()
         val request = OtpRequest("+26876123456", "ss-ZA")

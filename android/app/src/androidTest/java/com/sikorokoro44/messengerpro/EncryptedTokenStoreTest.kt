@@ -30,4 +30,16 @@ class EncryptedTokenStoreTest {
         store.clear()
         assertNull(store.load())
     }
+
+    @Test
+    fun newStoreInstanceRestoresSessionLikeColdStart() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val tokens = SessionTokens("access-restore", "refresh-restore", 900L)
+
+        EncryptedTokenStore(context).save(StoredSession(tokens, 2_000_000L))
+        val afterRestart = EncryptedTokenStore(context).load()
+
+        assertEquals(tokens, afterRestart?.tokens)
+        EncryptedTokenStore(context).clear()
+    }
 }
