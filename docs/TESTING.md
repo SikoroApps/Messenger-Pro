@@ -8,7 +8,7 @@ local Android SDK requirement. A passing status is evidence only for what actual
 | Job / task | Suite | Evidence artifact |
 | --- | --- | --- |
 | `verify` → `:app:testDebugUnitTest` | Android JVM unit tests (normalisation, state machine, HTTP/TLS contract, sessions, retry, redaction) | `messenger-pro-unit-test-results` |
-| `verify` → `:backend:test` | Server-authoritative OTP/session core and shared domain primitives | `messenger-pro-backend-test-results` |
+| `verify` → `:backend:test` | Server-authoritative OTP/session core, loopback HTTP contract adapter, SMS receipt rules and shared domain primitives | `messenger-pro-backend-test-results` |
 | `verify` → `:app:lintDebug` | Static analysis | `messenger-pro-lint` |
 | `verify` → `:app:assembleDebug` | Debug APK + package-name assertion | `messenger-pro-debug` |
 | `device-smoke` → `connectedDebugAndroidTest` | API 35 x86_64 emulator with KVM | `messenger-pro-device-test-results` |

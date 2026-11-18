@@ -1,14 +1,14 @@
 # Batch 2 plan — Identity, Backend & Core Security
 
-**Status: IN PROGRESS — client boundary implemented and CI-tested; backend, SMS and server-enforced features remain BLOCKED.**
-**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 19 client-boundary features are TESTED.**
+**Status: IN PROGRESS — client boundary, reference core, SMS rules and loopback HTTP contract are CI-tested; backend, SMS delivery and server-enforced runtime features remain BLOCKED.**
+**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 37 entries are TESTED.**
 **Phone number + OTP only. No email, no password, no mandatory Google account.**
 
 ## Progress (verified)
-- HEAD `eb9d991d36dc608ba1887cc600867260a629d9b4`, Android CI run 29 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44246930798 — success, both jobs green; 37 app JVM tests, 17 backend JVM tests, 8 emulator tests, lint clean, debug APK SHA-256 `78c4e9a1277eaef4aa5620595a08e7c4452a3d392062e0a0cf134059e3b58b40`.
-- Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-065`, `MP-066`, `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`.
-- Server-authoritative rules now exist as a CI-tested JVM reference core in `android/backend/` (`MP-058`, `MP-060`–`MP-062`, `MP-074`–`MP-078`, `MP-085`, `MP-086`, `MP-094`, `MP-095`), with 11 identity tests covering code generation, hashed verifiers, expiry, attempts, replay, cooldown, rate limits, idempotency, session rotation/reuse and redaction.
-- These are `TESTED` or `BLOCKED`, never `COMPLETE`: the core is not deployed, no real SMS delivery exists, and the reconstructed catalogue's prerequisite chains include runtime gates that cannot be satisfied without credentials/funding.
+- HEAD `6c254112b99e64ba62efbbbcb00b5bd90a17c64e`, Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 — success, both jobs green; 40 app JVM tests, 28 backend JVM tests, 9 emulator tests, lint clean, debug APK SHA-256 `2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60`.
+- Client boundary implemented and CI-tested: `MP-047`–`MP-056`, `MP-065`, `MP-066`, `MP-073` (client portion), `MP-087`–`MP-093`, `MP-096`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. The client now sends a per-attempt idempotency key, maps `SESSION_REVOKED` to `Unauthorized`, and enforces an optional HTTPS host allowlist.
+- Server-authoritative rules now exist as a CI-tested JVM reference core in `android/backend/`, including metadata-only SMS receipts and a loopback-only HTTP adapter (`MP-055`, `MP-057`–`MP-062`, `MP-067`, `MP-069`, `MP-070`, `MP-074`–`MP-078`, `MP-085`, `MP-086`, `MP-094`, `MP-095`). Tests cover code generation, hashed verifiers, expiry, attempts, replay, cooldown, rate limits, scoped idempotency, session rotation/reuse, redaction and real-socket JSON status/error contracts.
+- These are `TESTED` or `BLOCKED`, never `COMPLETE`: the core and loopback adapter are not deployed, no real SMS delivery exists, and the reconstructed catalogue's prerequisite chains include runtime gates that cannot be satisfied without credentials/funding.
 - Still blocked: backend deployment and RLS verification, SMS provider integration and real `+268` delivery, end-to-end delivered-code registration/sign-in (section 14 items 1–5).
 - Contract references: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
 

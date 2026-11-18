@@ -2,13 +2,14 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Verified HEAD: `eb9d991d36dc608ba1887cc600867260a629d9b4` — `test: align backend assertions with configured cooldown and E.164 bounds`.
+- Verified HEAD: `6c254112b99e64ba62efbbbcb00b5bd90a17c64e` — `test: exercise auth contract over loopback HTTP`.
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
 ## Work completed
 - Batch 1 foundation COMPLETE (CI runs 12 and 13).
 - Batch 2 client boundary implemented and CI-tested through run 19, then a server-authoritative reference core added in `android/backend/` (commits `c7a528c`, `2a76f5b`, `eb9d991`).
+- Metadata-only SMS delivery receipt core added and verified in run 30 (`d295336`); loopback HTTP adapter, scoped idempotency, client error mapping and host allowlist added and verified in run 32 (`6c25411`).
 - CI baseline repaired after the TLS/HTTP transport commit: `f43667f`, `2a3e7f6`, `b06de54`, `01db464`, `2552566`.
 - Shared domain primitives for later batches (privacy, messaging, media, account controls) implemented with JVM tests.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `android/backend/README.md`.
@@ -18,9 +19,11 @@
 | Run | Commit | Result | Notes |
 | --- | --- | --- | --- |
 | 29 / `44246930798` | `eb9d991` | success | 37 app JVM tests, 17 backend JVM tests, 8 emulator tests, lint, debug APK |
+| 30 / `44249004280` | `d295336` | success | 37 app JVM tests, 22 backend JVM tests, 8 emulator tests, lint, debug APK |
+| 32 / `44250745206` | `6c25411` | success | 40 app JVM tests, 28 backend JVM tests, 9 emulator tests, lint, debug APK |
 
-Latest artifacts (run 29): backend results `14402241704`, unit results `14402068123`, debug APK `14401952515`, lint `14401652819`, device results `14401589256`.
-Latest debug APK SHA-256: `78c4e9a1277eaef4aa5620595a08e7c4452a3d392062e0a0cf134059e3b58b40`.
+Latest evidence is run 32 on the exact HEAD. Artifacts are published under that run as `messenger-pro-backend-test-results`, `messenger-pro-unit-test-results`, `messenger-pro-debug`, `messenger-pro-lint` and `messenger-pro-device-test-results`.
+Latest debug APK SHA-256: `2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60`.
 
 ## Exact blockers
 1. No Supabase project or credentials → no deployed schema/RLS/Edge Functions; server-authorised behaviour cannot be verified at runtime.
@@ -30,4 +33,4 @@ Latest debug APK SHA-256: `78c4e9a1277eaef4aa5620595a08e7c4452a3d392062e0a0cf134
 5. Release signing material, protected secrets and Play Console access require explicit authorisation.
 
 ## Next specific task
-Wire the reference-core contracts into deployable Edge Functions and the Android repository layer, then add server-authorisation negative tests. Do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced.
+Port the reference-core contracts and loopback HTTP adapter into hosted Edge Functions with durable repositories, TLS, provider credentials and a real `+268` delivered-code test, then add server-authorisation negative tests. Do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced.

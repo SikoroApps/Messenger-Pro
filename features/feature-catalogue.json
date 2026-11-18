@@ -1,6 +1,6 @@
 {
   "label": "RECONSTRUCTED — NOT ORIGINAL",
-  "provenance": "RECONSTRUCTED — NOT ORIGINAL. The authoritative 600-feature catalogue referenced in features/README.md and docs/BUILD_ORDER.md is not present in this repository or its history. Only MP-001 and MP-600 are evidenced, and only as the reserved range endpoints MP-001..MP-600 named in README.md, docs/BUILD_ORDER.md and features/README.md. Every other identifier and every feature name and description here is a reconstruction derived from the batch themes in docs/BUILD_ORDER.md and the product rules in README.md, docs/ARCHITECTURE.md and docs/SECURITY.md. This reconstruction makes no claim that any item is implemented, configured, tested, shipped or authorized. All statuses are NOT_STARTED and all verification_evidence fields are empty. Phone number plus a one-time code is the only sign-in mechanism represented.",
+  "provenance": "RECONSTRUCTED — NOT ORIGINAL. The authoritative 600-feature catalogue referenced in features/README.md and docs/BUILD_ORDER.md is not present in this repository or its history. Only MP-001 and MP-600 are evidenced, and only as the reserved range endpoints MP-001..MP-600 named in README.md, docs/BUILD_ORDER.md and features/README.md. Every other identifier and every feature name and description here is a reconstruction derived from the batch themes in docs/BUILD_ORDER.md and the product rules in README.md, docs/ARCHITECTURE.md and docs/SECURITY.md. This reconstruction makes no claim that any item is implemented, configured, tested, shipped or authorized. Statuses are evidence-tracked; some rows have advanced to TESTED from CI-backed code and loopback HTTP tests, and no row is COMPLETE. Phone number plus a one-time code is the only sign-in mechanism represented.",
   "count": 600,
   "status_values": [
     "NOT_STARTED",
@@ -950,13 +950,13 @@
         "MP-040",
         "MP-054"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/ (reference core and loopback HTTP adapter); deployed backend still required",
+      "backend_requirement": "Server-side E.164 re-check tested over loopback HTTP; hosted TLS deployment still required.",
       "security_impact": "high: client-only validation can be bypassed by crafted requests",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: mock function test rejecting malformed numbers",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. AuthServiceTest.phonePolicyAndRedactionDoNotLeakPersonalData and AuthHttpTest.malformedInputAndUnknownRoutesFailClosed reject malformed numbers over real HTTP sockets.",
+      "blocker": "No hosted backend or SMS credentials: reference core and loopback adapter are CI-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-056",
@@ -986,13 +986,13 @@
         "MP-040",
         "MP-056"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/AuthHttp.kt (loopback adapter); hosted Edge Function still required",
+      "backend_requirement": "Reference JSON contract tested over loopback HTTP; hosted TLS endpoint, credentials and deployment still required.",
       "security_impact": "high: ambiguous responses enable account enumeration",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: contract test for generic responses",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. AuthHttpTest.otpContractOverRealHttpNeverReturnsTheCodeOrPhone, idempotencyKeyOverHttpPreventsDuplicateSms, cooldownIsEnforcedOverHttpWithRetryAfter and providerFailureReturnsGeneric503AndGrantsNothing exercise the request contract, scoped idempotency and stable errors over real sockets.",
+      "blocker": "No hosted backend or SMS credentials: reference core and loopback adapter are CI-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-058",
@@ -1004,13 +1004,13 @@
         "MP-040",
         "MP-057"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/AuthHttp.kt (loopback adapter); hosted Edge Function still required",
+      "backend_requirement": "Reference JSON contract tested over loopback HTTP; hosted TLS endpoint, credentials and deployment still required.",
       "security_impact": "high: verification endpoint can leak account existence",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: contract test with unknown and known numbers",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. AuthHttpTest.httpErrorsUseStableCodesAndReplayIsRejected and otpContractOverRealHttpNeverReturnsTheCodeOrPhone verify token issuance, replay rejection, rotation-reuse revocation and absence of phone/code/token leakage over real sockets.",
+      "blocker": "No hosted backend or SMS credentials: reference core and loopback adapter are CI-tested only; runtime authorization and real +268 delivery are unverified."
     },
     {
       "feature_id": "MP-059",
@@ -1166,13 +1166,13 @@
         "MP-040",
         "MP-066"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/Sms.kt (provider-independent gateway); deployed adapter still required",
+      "backend_requirement": "Reference core implemented and CI-tested; real provider adapter and credentials still required.",
       "security_impact": "high: tight coupling hinders rotation after credential loss",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: adapter contract test with fake provider",
-      "verification_evidence": "",
-      "blocker": "SMS delivery provider credentials not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. SmsGateway is provider-independent; SmsDeliveryTest.handoffAndDeliveryReceiptStoreMetadataOnly and sandboxGatewayCannotBeUsedInProduction test the interface and forbid sandbox use in production.",
+      "blocker": "No SMS provider credentials or funding: metadata-only receipt rules are CI-tested; real +268 delivery is unverified."
     },
     {
       "feature_id": "MP-068",
@@ -1202,13 +1202,13 @@
         "MP-040",
         "MP-068"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/Sms.kt (metadata-only receipt service); deployed adapter still required",
+      "backend_requirement": "Reference core implemented and CI-tested; real provider callback and credentials still required.",
       "security_impact": "medium: receipt logs can leak identity metadata",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: receipt handling test with redacted payload",
-      "verification_evidence": "",
-      "blocker": "SMS delivery provider credentials not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. SmsDeliveryTest.handoffAndDeliveryReceiptStoreMetadataOnly and receiptsRejectMismatchedProviderIdsAndTerminalStateChanges verify that receipts carry no phone/code, require the matching provider id and cannot overwrite terminal state.",
+      "blocker": "No SMS provider credentials or funding: metadata-only receipt rules are CI-tested; real +268 delivery is unverified."
     },
     {
       "feature_id": "MP-070",
@@ -1220,13 +1220,13 @@
         "MP-040",
         "MP-069"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
-      "backend_requirement": "Supabase Edge Function contract; not configured.",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/Sms.kt (failure categories); deployed adapter still required",
+      "backend_requirement": "Reference core implemented and CI-tested; real provider failure mapping and credentials still required.",
       "security_impact": "low: misclassified failures cause repeated SMS sent to a user",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: failure mapping tests",
-      "verification_evidence": "",
-      "blocker": "SMS delivery provider credentials not configured."
+      "verification_evidence": "Android CI run 32 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44250745206 success on 6c25411: 40 app JVM tests, 28 backend JVM tests, 9 API 35 emulator tests, lint clean, debug APK SHA-256 2ba0249f7122d89d89c778bbe73bf25907352db2df1836b1396c3e8578b57b60. SmsDeliveryTest.providerFailureIsRecordedAndGrantsNoAccountOrSession, deliveryEventRequiresAnOpaqueProviderId and sandboxGatewayCannotBeUsedInProduction test generic failure categories, opaque ids, no account/session grant and production sandbox rejection.",
+      "blocker": "No SMS provider credentials or funding: metadata-only receipt rules are CI-tested; real +268 delivery is unverified."
     },
     {
       "feature_id": "MP-071",
