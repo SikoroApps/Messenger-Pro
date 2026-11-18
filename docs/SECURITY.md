@@ -15,6 +15,8 @@
 - Attach bearer tokens only to allowlisted HTTPS hosts. Strip any pre-existing `Authorization`
   header and re-check the destination on redirects (the OkHttp interceptor is registered as a
   network interceptor), so a redirect cannot leak the token to another host.
+- If a device label is stored for later session controls, sanitize it, cap its length and never
+  log it. Server-side authorization and RLS remain required before any device-control workflow.
 - Android permissions must be least-privilege and requested just in time.
 - Use SMS Retriever / SMS User Consent for OTP autofill; do not use broad SMS-reading permissions.
 - Keep verification messages to one isolated six-digit code and restrict parsing to locale-specific

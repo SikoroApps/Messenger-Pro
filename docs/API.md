@@ -54,6 +54,12 @@ allowlist. It is installed as an OkHttp network interceptor so redirects are re-
 the header is attached. Client tests cover allowlisted attachment, stripping on unrelated hosts,
 cleartext rejection and redirect leakage.
 
+Verification responses return a `session_id`, and the verify endpoint accepts an optional
+`device_label`. `DeviceLabelPolicy` trims the label, removes control characters and angle brackets,
+collapses whitespace and caps it at 64 characters before it is stored on the session record; the
+label is preserved when a refresh token rotates. This is reference-core contract evidence only:
+no durable RLS table, device list or revocation UI is deployed.
+
 Verification SMS copy is a short, locale-tagged template (`VerificationMessageTemplate`): one
 isolated six-digit code, an English (`en`) or siSwati (`ss`) verification phrase, and an optional
 trailing retriever hash. `SmsOtpExtractor` accepts locale-specific keyword lists with Unicode-safe

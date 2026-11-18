@@ -1670,13 +1670,13 @@
         "MP-040",
         "MP-094"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
+      "android_component": "android/backend/src/main/kotlin/com/sikorokoro44/messengerpro/server/ (reference core); backend/ contracts and migrations (not present in repository)",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: session records contain sensitive metadata and require RLS",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: session record creation test",
-      "verification_evidence": "",
-      "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
+      "verification_evidence": "Android CI run 60 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44272939936 success on dc98268b7213d83aa8f83c831e953224c3ea5923: 57 app JVM tests, 40 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 02f0d1e1e8f50e08a8a2e8578e71dd662a75bd5781a7d86faa2d36f23ea3dc76. AuthHttpTest.verificationCreatesBoundedDeviceSessionRecordAndPreservesItOnRefresh posts an optional device_label over real loopback HTTP, asserts the returned session_id resolves to a bounded sanitized label, and checks label preservation and a new session after refresh. DeviceLabelPolicy caps labels at 64 characters and removes control characters and angle brackets. This is reference-core and loopback HTTP evidence only; no Supabase/RLS persistence, device-control UI or real device metadata is evidenced.",
+      "blocker": "Supabase project, backend credentials, durable RLS storage and device-control UI remain unconfigured; real device metadata and revocation workflow are unverified."
     },
     {
       "feature_id": "MP-096",
