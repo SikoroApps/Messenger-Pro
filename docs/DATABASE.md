@@ -4,20 +4,32 @@ No hosted database or applied migration exists yet. This document records the sc
 that a deployed adapter must satisfy; the in-memory repositories in `android/backend/` implement
 the same semantics for CI.
 
+The reviewed migration `supabase/migrations/0001_identity_foundation.sql` defines these tables.
+It enables RLS on all of them and grants no `anon` or `authenticated` access.
+
 | Table | Columns | Client access |
 | --- | --- | --- |
-| `phone_identities` | `id uuid pk`, `phone_e164 text unique`, `created_at`, `updated_at` | none (service role only) |
-| `accounts` | `id uuid pk`, `phone_identity_id uuid fk`, `state text`, `created_at` | owner-scoped `SELECT` only |
-| `otp_requests` | `id uuid pk`, `phone_e164 text`, `verifier text`, `salt text`, `expires_at`, `attempts int`, `consumed_at`, `created_at` | none |
-| `sessions` | `id uuid pk`, `account_id uuid fk`, `refresh_hash text unique`, `expires_at`, `revoked_at`, `created_at` | owner-scoped `SELECT` only |
+| `accounts` | `id text pk`, `phone_e164 text unique`, `state text`, `display_name text`, `created_at`, `updated_at` | none (service role only) |
+| `otp_requests` | `id text pk`, `phone_e164 text`, `verifier text`, `salt text`, `expires_at`, `created_at`, `attempts int`, `consumed_at`, `failed_at` | none |
+| `provider_otp_requests` | `id text pk`, `phone_e164 text`, `verification_id text`, `expires_at`, `created_at`, `attempts int`, `consumed_at`, `failed_at` | none |
+| `sessions` | `id text pk`, `account_id text fk`, `refresh_hash text unique`, `expires_at`, `created_at`, `device_label text`, `revoked_at` | none |
+| `consumed_refresh_tokens` | `refresh_hash text pk`, `account_id text`, `consumed_at` | none |
 | `rate_limit_events` | `id bigserial pk`, `scope text`, `subject_hash text`, `occurred_at` | none |
-| `sms_delivery_events` | `id uuid pk`, `otp_request_id uuid fk`, `provider text`, `provider_message_id text`, `status text`, `occurred_at` | none |
+| `sms_delivery_events` | `id text pk`, `otp_request_id text`, `provider_message_id text`, `state text`, `occurred_at`, `failure_reason text` | none |
+| `audit_events` | `id bigserial pk`, `action`, `subject_hash`, `correlation_hash`, `outcome`, `occurred_at` | none |
+
+The `mp_upsert_account` SQL function atomically preserves the original account id on duplicate
+verification. `SupabaseRestClient` sends the service key only in the `apikey` header to the
+configured HTTPS `*.supabase.co` host and disables redirects.
 
 ## Mandatory invariants
 
-- Only a keyed verifier and per-request salt are stored. Plaintext OTPs and provider responses
-  are never persisted or logged.
+- The reference core stores only a keyed verifier and per-request salt. The provider-backed path
+  stores only the opaque provider verification id. Plaintext OTPs, sandbox codes and provider
+  responses are never persisted or logged.
 - `consume(id)` is a single atomic conditional update: it succeeds at most once per request.
+  Attempts and terminal failure markers are also persisted so a retried HTTP request cannot reset
+  the counter or revive an expired request.
 - Refresh token hashes are unique; rotation atomically records the old hash as consumed before
   the replacement session is created. Reuse revokes all sessions for the account.
 - Rate-limit subjects are keyed hashes of phone/IP, never raw personal data.

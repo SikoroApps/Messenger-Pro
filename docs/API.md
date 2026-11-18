@@ -1,10 +1,17 @@
 # API contract (phone + OTP only)
 
 The client contract is defined in `android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/AuthApi.kt`
-and implemented over HTTPS by `HttpAuthApi.kt`. The server-side rules are implemented by the
-reference core in `android/backend/` and are exercised in CI without credentials. A loopback-only
-HTTP adapter (`android/backend/.../AuthHttp.kt`) lets the same JSON contract be tested over real
-sockets; it is a test harness, not a hosted TLS deployment.
+and implemented over HTTPS by `HttpAuthApi.kt`. Two server-side implementations exercise the same
+JSON contract in CI:
+
+- `AuthHttp.kt` + `AuthService` — the reference core that generates and hashes its own test OTP.
+- `ProviderAuthHttp.kt` + `ProviderOtpService` — the hosted-style adapter. It delegates code
+  generation and checking to eSMS Verify through `ESmsVerifyGateway`, and persists OTP state,
+  accounts and sessions through the server-only Supabase REST repositories.
+
+Both adapters are loopback-only test harnesses; neither is a hosted TLS deployment. The
+provider-backed adapter accepts only `esms_test_` keys in CI and receives Supabase service keys
+only on the server side.
 
 ## Public endpoints
 
@@ -28,6 +35,13 @@ Rules enforced by the reference core:
   session for that account.
 - Errors use stable codes and constant generic user messages so registration state is not
   discoverable. Details from upstream providers never reach the client.
+
+In the provider-backed adapter the plaintext code is owned by eSMS: it is never generated, hashed,
+persisted or logged by this repository. The server stores only the opaque verification id plus a
+conditional consume marker, and increments a durable attempt counter before each provider check.
+`ProviderAuthHttpTest` drives request, verify, refresh, logout, idempotent retry, wrong-code and
+attempt-limit flows through real HTTP sockets with one fake transport for both pinned eSMS and
+Supabase hosts; no real provider or database is contacted.
 
 ## Loopback HTTP adapter status mapping
 

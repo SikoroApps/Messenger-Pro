@@ -1,14 +1,14 @@
 # Progress tracker
 
 ## Current state
-Branch `main`, verified HEAD `df30bffe8feb13db06ed22e307feddd62b81e01a`.
-Android CI run `44337788301`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 — **success on the exact HEAD**, both jobs green. All counts and the checksum below refer to that run.
+Branch `main`, verified HEAD `ca8cb73ecee58c48ddc40ae0b2d26f179ab6b30a`.
+Android CI run `44356132108`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 — **success on the exact HEAD**, both jobs green. All counts and the checksum below refer to that run.
 
 - JVM unit tests (`:app:testDebugUnitTest`): 57 passed, 0 failures/errors/skips (artifact `messenger-pro-unit-test-results`).
 - Server-authoritative and provider-adapter tests (`:backend:test`): 67 passed, 0 failures/errors/skips (artifact `messenger-pro-backend-test-results`).
 - Emulator smoke job (API 35, KVM x86_64): green (artifact `messenger-pro-device-test-results`).
 - Lint: `lintDebug` passed (artifact `messenger-pro-lint`).
-- Debug APK: artifact `messenger-pro-debug`, SHA-256 `9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab`.
+- Debug APK: artifact `messenger-pro-debug`, SHA-256 `a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72`.
 - Credentials probe: run `44336159672`, https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 — success, with no secret or provider payload printed. See `docs/CREDENTIALS.md`.
 
 ## Work completed in this segment
@@ -32,9 +32,10 @@ Android CI run `44337788301`, https://github.com/SikoroApps/Messenger-Pro/action
 - Added reference-core cross-session and abuse-logging evidence: `AuthServiceTest.codeFromAPreviousSessionCannotOpenANewSessionForTheSamePhone` proves a code from an earlier completed session cannot open a newer request/session for the same phone, and `AuditTest.rateLimitAndCooldownAbuseEventsStayMetadataOnly` proves cooldown and rate-limit abuse events are recorded only as generic signals (`OTP_REQUEST_BURST` / `RATE_LIMIT_HIT`) with keyed 64-character subject hashes and no raw phone, IP, code or message body. `MP-080` and `MP-114` are `TESTED` from run 69 as reference-core/in-memory evidence only; no deployed backend, durable request binding, telemetry sink or RLS-protected audit storage is claimed. Run 68 failed because the new audit test wrongly expected `OTP_REQUEST_BURST` when cooldown was disabled; `a48a8d9` corrected the test to assert each harness's actual generic signal while preserving redaction checks.
 - Advanced `MP-091`, `MP-097`, `MP-079`, `MP-113`, `MP-080` and `MP-114` to `TESTED` from runs 47, 50, 63, 66 and 69, and 9 earlier already-evidenced registry rows (client transport, formatting, manual entry, cooldown timer, refresh flow, retry budget, offline detection and OTP extraction) from `NOT_STARTED` to `TESTED`; 57 rows are now `TESTED` and no row was marked `COMPLETE`.
 - Added a non-disclosing runtime credential probe (`.github/workflows/credentials-probe.yml`). Run `44336159672` proved that all eight organization secrets are visible to Messenger-Pro workflows, the keystore decodes and the alias verifies, both Supabase keys are distinguished from an invalid control key, and eSMS sandbox start/check succeeds with an `esms_test_` key. No real `+268` SMS was sent and no value/code/id was printed.
-- Added `ESmsVerifyGateway` and `ProviderOtpService`: pinned HTTPS eSMS Verify calls, mandatory sandbox key, stable status mapping, `Idempotency-Key`, generic errors, fake-transport tests, and a provider-managed OTP state machine that never stores the code and issues a session only after an approved check. 17 new backend tests pass in run `44337788301`; this is sandbox/integration-adapter evidence, not delivered-SMS or deployed-service evidence.
-- Added `Supabase.kt` REST adapters and `supabase/migrations/0001_identity_foundation.sql`: service-role-only account, provider-OTP and session persistence with host pinning, new-key header handling, generic error mapping and deny-by-default RLS. Six `SupabaseRestAdapterTest` cases pass in run `44337788301`; the migration is reviewed code, not a deployed schema.
-- Run `44335097442` failed on a Kotlin charset call and `44336015644`/`44337067781` failed on two brittle test fixtures; `59a30ae`, `b5d54f9` and `df30bff` corrected them and run `44337788301` is green.
+- Added `ESmsVerifyGateway` and `ProviderOtpService`: pinned HTTPS eSMS Verify calls, mandatory sandbox key, stable status mapping, `Idempotency-Key`, generic errors, fake-transport tests, and a provider-managed OTP state machine that never stores the code and issues a session only after an approved check. 17 new backend tests pass in run `44356132108`; this is sandbox/integration-adapter evidence, not delivered-SMS or deployed-service evidence.
+- Added `Supabase.kt` REST adapters and `supabase/migrations/0001_identity_foundation.sql`: service-role-only account, provider-OTP and session persistence with host pinning, new-key header handling, generic error mapping and deny-by-default RLS. Six `SupabaseRestAdapterTest` cases pass in run `44356132108`; the migration is reviewed code, not a deployed schema.
+- Run `44335097442` failed on a Kotlin charset call and `44336015644`/`44337067781` failed on two brittle test fixtures; `59a30ae`, `b5d54f9` and `df30bff` corrected them. The later endpoint wiring is verified green in run `44356132108`.
+- Wired the documented auth endpoints to `ProviderOtpService`, `ESmsVerifyGateway` and Supabase REST repositories through `ProviderAuthHttp.kt`. Provider OTP records now persist attempts and terminal failures, so retries cannot reset the counter. `ProviderAuthHttpTest` drives request/verify/refresh/logout, idempotent retry, wrong-code, durable attempt-limit and generic provider-failure flows over real loopback HTTP with a fake transport for both pinned hosts. Five new backend tests pass in run `44356132108`; no real provider or database is contacted. The CI workflow now also prints the APK SHA-256 in the job log so checksum evidence does not depend on artifact download availability.
 - Added contract/evidence documentation: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `docs/CREDENTIALS.md`, `android/backend/README.md`, and honest batch records in `docs/BUILD_ORDER.md`.
 
 ## Dependency note

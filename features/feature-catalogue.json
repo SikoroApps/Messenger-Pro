@@ -703,7 +703,7 @@
       "security_impact": "high: assuming an unknown provider can expose data to the wrong project",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: decision record review and absence of legacy endpoints",
-      "verification_evidence": "Credential probe run 44336159672 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 success on b5d54f9: all eight organization secrets visible to Messenger-Pro workflows, keystore alias verified, both Supabase keys distinguished from invalid controls, eSMS sandbox start/check succeeded with an esms_test_ key; no secret, code, verification id or real SMS was exposed. Android CI run 44337788301 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 success on df30bff: 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab.",
+      "verification_evidence": "Credential probe run 44336159672 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 success on b5d54f9: all eight organization secrets visible to Messenger-Pro workflows, keystore alias verified, both Supabase keys distinguished from invalid controls, eSMS sandbox start/check succeeded with an esms_test_ key; no secret, code, verification id or real SMS was exposed. Android CI run 44356132108 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 success on ca8cb73: 57 app JVM tests, 72 backend JVM tests (including 5 ProviderAuthHttpTest cases), API 35 emulator smoke job green, lint clean, debug APK SHA-256 a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72.",
       "blocker": "Hosted deployment and real delivered-code sign-in remain BLOCKED; authoritative 600-feature catalogue still unrecovered."
     },
     {
@@ -721,7 +721,7 @@
       "security_impact": "high: schema mistakes can leak account records",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: schema contract review with mocked database",
-      "verification_evidence": "Android CI run 44337788301 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 success on df30bff: 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab. SupabaseRestAdapterTest verifies service-role header handling, host pinning, RPC account upsert, conditional OTP consume and generic error mapping. The migration is code-level evidence only; no hosted schema is claimed.",
+      "verification_evidence": "Android CI run 44356132108 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 success on ca8cb73: 57 app JVM tests, 72 backend JVM tests (including 5 ProviderAuthHttpTest cases), API 35 emulator smoke job green, lint clean, debug APK SHA-256 a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72. SupabaseRestAdapterTest verifies service-role header handling, host pinning, RPC account upsert, conditional OTP consume and generic error mapping. The migration is code-level evidence only; no hosted schema is claimed.",
       "blocker": "No hosted project ref/access token; migration not applied and deployed schema not verified."
     },
     {
@@ -757,7 +757,7 @@
       "security_impact": "high: missing RLS exposes every user record",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: RLS deny-by-default policy review",
-      "verification_evidence": "Android CI run 44337788301 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 success on df30bff: 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab. The migration enables RLS on all identity tables and revokes anon/authenticated access; SupabaseRestAdapterTest uses fake transports only. This is a policy review, not deployed RLS evidence.",
+      "verification_evidence": "Android CI run 44356132108 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 success on ca8cb73: 57 app JVM tests, 72 backend JVM tests (including 5 ProviderAuthHttpTest cases), API 35 emulator smoke job green, lint clean, debug APK SHA-256 a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72. The migration enables RLS on all identity tables and revokes anon/authenticated access; SupabaseRestAdapterTest uses fake transports only. This is a policy review, not deployed RLS evidence.",
       "blocker": "Deployed RLS policies have not been observed at runtime."
     },
     {
@@ -1171,7 +1171,7 @@
       "security_impact": "high: tight coupling hinders rotation after credential loss",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: adapter contract test with fake provider",
-      "verification_evidence": "Android CI run 44337788301 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 success on df30bff: 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab. ESmsVerifyGatewayTest proves sandbox-key enforcement, pinned HTTPS endpoints, Idempotency-Key, stable status mapping and no key/code/sandbox-code exposure in returned values or generic errors. SmsGateway remains provider-independent. No real +268 delivery is claimed.",
+      "verification_evidence": "Android CI run 44356132108 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 success on ca8cb73: 57 app JVM tests, 72 backend JVM tests (including 5 ProviderAuthHttpTest cases), API 35 emulator smoke job green, lint clean, debug APK SHA-256 a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72. ESmsVerifyGatewayTest proves sandbox-key enforcement, pinned HTTPS endpoints, Idempotency-Key, stable status mapping and no key/code/sandbox-code exposure in returned values or generic errors. SmsGateway remains provider-independent. No real +268 delivery is claimed.",
       "blocker": "Production eSMS key, wallet credits and approved sender ID are required for real +268 delivery."
     },
     {
@@ -1189,7 +1189,7 @@
       "security_impact": "high: exposed provider credentials allow arbitrary messaging",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: client scan and runtime injection review",
-      "verification_evidence": "Credential probe run 44336159672 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 success on b5d54f9: all eight organization secrets visible to Messenger-Pro workflows, keystore alias verified, both Supabase keys distinguished from invalid controls, eSMS sandbox start/check succeeded with an esms_test_ key; no secret, code, verification id or real SMS was exposed. Android CI run 44337788301 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44337788301 success on df30bff: 57 app JVM tests, 67 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK SHA-256 9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab. The adapter refuses any key that is not esms_test_, and tests assert the key appears only in the Authorization header and never in URLs, bodies, returned values or generic exceptions.",
+      "verification_evidence": "Credential probe run 44336159672 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44336159672 success on b5d54f9: all eight organization secrets visible to Messenger-Pro workflows, keystore alias verified, both Supabase keys distinguished from invalid controls, eSMS sandbox start/check succeeded with an esms_test_ key; no secret, code, verification id or real SMS was exposed. Android CI run 44356132108 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44356132108 success on ca8cb73: 57 app JVM tests, 72 backend JVM tests (including 5 ProviderAuthHttpTest cases), API 35 emulator smoke job green, lint clean, debug APK SHA-256 a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72. The adapter refuses any key that is not esms_test_, and tests assert the key appears only in the Authorization header and never in URLs, bodies, returned values or generic exceptions.",
       "blocker": "Production wallet credits and approved sender ID are required; visibility restriction needs admin:org scope."
     },
     {

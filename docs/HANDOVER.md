@@ -2,8 +2,9 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Current HEAD: `df30bffe8feb13db06ed22e307feddd62b81e01a` — `test: use a distinct refresh hash fixture in Supabase adapter test`; CI run `44337788301` (success, both jobs).
-- Earlier code HEAD: `a48a8d9b9048d1aecdc3d5f6aeabe54fef795579` — `fix: distinguish cooldown and rate-limit abuse signals`; CI run 69 `44282658517` (success).
+- Current HEAD: `ca8cb73ecee58c48ddc40ae0b2d26f179ab6b30a` — `ci: print debug APK checksum in verification logs`; CI run `44356132108` (success, both jobs).
+- Earlier code HEAD: `bcc8ac2a735b72ad2ff8f861446b97b2ab711189` — `feat: wire provider HTTP contract to eSMS and Supabase adapters`; CI run `44350395975` (success, both jobs).
+- Earlier verified code HEAD: `df30bffe8feb13db06ed22e307feddd62b81e01a` — `test: use a distinct refresh hash fixture in Supabase adapter test`; CI run `44337788301` (success, both jobs).
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
@@ -17,6 +18,7 @@
 - Shared domain primitives for later batches (privacy, messaging, media, account controls) implemented with JVM tests.
 - Runtime credential probe verified all eight organization secrets, keystore/alias, both Supabase keys and eSMS sandbox start/check without printing values (run `44336159672`). Secret visibility restriction still needs `admin:org`.
 - Added eSMS Verify adapter (`ESmsVerify.kt`), provider-managed OTP service (`ProviderOtp.kt`), Supabase REST adapters (`Supabase.kt`) and deny-by-default RLS migration (`supabase/migrations/0001_identity_foundation.sql`), with 17 new backend tests passing in run `44337788301`. No real SMS delivery or hosted deployment is claimed.
+- Wired the documented HTTP endpoints to the provider/Supabase adapters in `ProviderAuthHttp.kt`. Provider OTP attempts and terminal failures are now persisted, so retries cannot reset the counter or revive a failed request. Five `ProviderAuthHttpTest` cases verify request/verify/refresh/logout, idempotency, wrong-code, replay, durable attempt limits and generic provider failures over real loopback sockets with a fake transport for both pinned hosts. CI now prints the debug APK SHA-256 in the job log. Run `44356132108` is green with 72 backend tests; no real provider or database was contacted.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `docs/CREDENTIALS.md`, `android/backend/README.md`.
 - Batch records in `docs/BUILD_ORDER.md` and `docs/PROGRESS.md` updated honestly; no batch marked complete.
 
@@ -58,11 +60,14 @@
 | `44336015644` | `b5d54f9` | failure | provider test fixture code `000000` matched a timestamp string; fixed in `89ef801` |
 | `44337067781` | `89ef801` | failure | Supabase adapter test used URL encoding as a refresh hash; fixed in `df30bff` |
 | `44337788301` | `df30bff` | success | 57 app JVM tests, 67 backend JVM tests (eSMS adapter, provider-managed OTP and Supabase REST cases), API 35 emulator smoke job green, lint clean, debug APK |
+| `44346976216` | `ea05d66` | success | documentation-only commit re-verified; code evidence stays on run `44337788301` |
+| `44350395975` | `bcc8ac2` | success | 57 app JVM tests, 72 backend JVM tests (5 new `ProviderAuthHttpTest` cases), API 35 emulator smoke job green, lint clean, debug APK |
+| `44356132108` | `ca8cb73` | success | same code tests as `bcc8ac2` plus CI checksum logging; 57 app JVM tests, 72 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK |
 
 Separate workflow: Credentials probe `44336159672` on `b5d54f9` succeeded; see `docs/CREDENTIALS.md`.
 
-Latest code evidence is run `44337788301` on the exact code HEAD. Artifacts `messenger-pro-backend-test-results` (`14441528290`), `messenger-pro-debug` (`14441463399`), `messenger-pro-device-test-results` (`14441428729`), `messenger-pro-unit-test-results` (`14441323595`) and `messenger-pro-lint` (`14441233972`) are published under that run.
-Latest debug APK SHA-256: `9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cba4a8a5936ab`.
+Latest code evidence is run `44356132108` on the exact code HEAD. Artifacts `messenger-pro-backend-test-results` (`14453405981`) and `messenger-pro-debug` (`14452241276`) are published under that run; the APK SHA-256 is printed directly in the `verify` job log.
+Latest debug APK SHA-256: `a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72`.
 
 ## Exact blockers
 1. Organization secret visibility cannot be restricted/inspected without the `admin:org` scope: `gh auth refresh -h github.com -s admin:org` is the one-time user action needed. Runtime accessibility is already proven.
@@ -73,4 +78,4 @@ Latest debug APK SHA-256: `9af9007adb5d6983649ac3c9a9c4a442beab1d174a08100ae64cb
 6. Release workflow remains untracked scaffolding until a signed artifact/checksum is CI-evidenced; Play Console rollout needs separate authorization.
 
 ## Next specific task
-Wire the server-side endpoints to the new eSMS/Supabase adapters, add deployment automation for the reviewed migration and functions when a project ref/access token exists, and keep Batch 2 gated until a real delivered-code sign-in and hosted authorization evidence are obtained. Do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced.
+Server-side endpoint wiring is done and CI-tested. Next: add deployment automation for the reviewed migration and server functions when a Supabase project ref/access token exists, then obtain a real delivered `+268` sign-in and hosted authorization evidence. Keep Batch 2 gated; do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced. The one-time user action for secret restriction remains `gh auth refresh -h github.com -s admin:org`.
