@@ -202,7 +202,7 @@ class HttpsProviderTransport(
 
         val statusCode = connection.responseCode
         val stream = if (statusCode in 200..299) connection.inputStream else connection.errorStream
-        val body = stream?.bufferedReader(StandardCharsets.UTF_8.name())?.use { it.readText() } ?: ""
+        val body = stream?.bufferedReader(StandardCharsets.UTF_8)?.use { it.readText() } ?: ""
         connection.disconnect()
         return ProviderHttpResponse(statusCode, body)
     }
