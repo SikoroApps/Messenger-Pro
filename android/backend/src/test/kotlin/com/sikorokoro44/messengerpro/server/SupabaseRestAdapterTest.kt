@@ -89,10 +89,11 @@ class SupabaseRestAdapterTest {
         val transport = FakeTransport(listOf(ok("[{\"id\":\"session-1\"}]"), ok("[]")))
         val client = SupabaseRestClient("https://project.supabase.co", SERVICE_KEY, transport)
         val repo = SupabaseSessionRepository(client)
+        val refreshHash = "hmac-7f3a91c4d8"
         val session = Session(
             id = "session-1",
             accountId = "acct-1",
-            refreshHash = client.encode(REFRESH_TOKEN),
+            refreshHash = refreshHash,
             expiresAt = 5000L,
             createdAt = 1000L,
         )
@@ -105,6 +106,7 @@ class SupabaseRestAdapterTest {
         assertFalse(save.body.contains(REFRESH_TOKEN))
         assertTrue(save.body.contains("refresh_hash"))
         assertFalse(consume.body.contains(REFRESH_TOKEN))
+        assertTrue(consume.body.contains(refreshHash))
         assertTrue(consume.url.contains("on_conflict=refresh_hash"))
     }
 
