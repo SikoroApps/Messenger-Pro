@@ -17,7 +17,7 @@ class AppLaunchTest {
     @Test
     fun appLaunchesToStableShell() {
         composeRule.onNodeWithText("Messenger Pro").assertIsDisplayed()
-        composeRule.onNodeWithText("Foundation build · Authentication is not connected yet")
-            .assertIsDisplayed()
+        composeRule.onNodeWithText("Phone number sign-in · OTP required").assertIsDisplayed()
+        composeRule.onNodeWithText("Sign in with your phone number").assertIsDisplayed()
     }
 }
