@@ -809,9 +809,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "low: direct endpoint construction scatters security decisions",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: interface unit tests with fake client",
-      "verification_evidence": "",
+      "verification_evidence": "AuthApi.kt interface with fake-client tests: SecurityAndNetworkTest verifies UnconfiguredAuthApi never returns success or session. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -845,9 +845,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "low: ambiguous errors can cause unsafe retry loops",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: error mapping unit tests",
-      "verification_evidence": "",
+      "verification_evidence": "Typed AuthError sealed hierarchy with retryable, retryAfterSeconds and stable codes; SecurityAndNetworkTest asserts expired, consumed and throttled contract data. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -881,9 +881,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: inconsistent numbers cause wrong-account verification",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: normalization unit tests across country formats",
-      "verification_evidence": "",
+      "verification_evidence": "PhoneNormalizerTest: international, local, 00-prefix and foreign number normalization to E.164. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -899,9 +899,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: weak validation wastes SMS attempts and enables abuse",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: invalid input rejection unit tests",
-      "verification_evidence": "",
+      "verification_evidence": "PhoneNormalizerTest: empty, invalid-character, too-short and too-long rejection. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -917,9 +917,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/ui/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: only UI state, no stored credential",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Compose UI test: country code selection Compose test",
-      "verification_evidence": "",
+      "verification_evidence": "IdentityScreenTest renders the country selector with Eswatini default; emulator run 19. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -971,9 +971,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/domain/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: loose state transitions can skip verification",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Domain unit test: state transition unit tests",
-      "verification_evidence": "",
+      "verification_evidence": "AuthStateMachineTest: opening OTP screen never authenticates, explicit verification transition, invalid transitions ignored, retry and logout. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1529,9 +1529,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "high: plain storage exposes tokens to local attackers",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: storage encryption assertion and unit test",
-      "verification_evidence": "",
+      "verification_evidence": "EncryptedSharedPreferences with AES256_GCM master key in EncryptedTokenStore; emulator test asserts saved tokens are not plaintext in shared_prefs. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1547,9 +1547,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "Supabase PostgreSQL Row Level Security policy contract; not configured.",
       "security_impact": "high: log leakage enables remote account takeover",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: log and preferences scan in tests",
-      "verification_evidence": "",
+      "verification_evidence": "EncryptedTokenStoreTest scans shared_prefs XML for token values; DiagnosticsRedactor tests assert phone, code and token values are never emitted. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1565,9 +1565,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: broken restoration forces repeated code entry",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: restore flow unit test",
-      "verification_evidence": "",
+      "verification_evidence": "EncryptedTokenStoreTest.newStoreInstanceRestoresSessionLikeColdStart passes on emulator run 19. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1583,9 +1583,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "medium: stale sessions can cause confusing failures",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: expiry transition tests",
-      "verification_evidence": "",
+      "verification_evidence": "SessionManagerTest.nearExpiryRotatesThroughServerAndPersistsNewTokens and failedRotationClearsLocalSession. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1637,9 +1637,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "high: partial logout leaves a usable session",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Identity flow unit test: logout state assertions",
-      "verification_evidence": "",
+      "verification_evidence": "SessionManagerTest.logoutRevokesRemotelyAndPurgesLocally. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1691,9 +1691,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/network/",
       "backend_requirement": "Public app configuration only; no backend credential assumed.",
       "security_impact": "low: ignoring server timing causes hammering",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Network layer unit test: header parsing unit tests",
-      "verification_evidence": "",
+      "verification_evidence": "RetryAfterParser.parse unit test covers null, non-numeric, negative, numeric and >1h bounded values; no live HTTP header source yet. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1763,9 +1763,9 @@
       "android_component": "android/app/src/test/java/com/sikorokoro44/messengerpro/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "low: prevents wasted delivery and abuse",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "JVM unit test: invalid phone rejection test",
-      "verification_evidence": "",
+      "verification_evidence": "PhoneNormalizerTest.rejectsMalformedInput. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1781,9 +1781,9 @@
       "android_component": "android/app/src/test/java/com/sikorokoro44/messengerpro/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "high: wrong code acceptance would break identity",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "JVM unit test: wrong code rejection test",
-      "verification_evidence": "",
+      "verification_evidence": "AuthStateMachineTest.failureCanRetryAndLogoutResetsToPhoneEntry with AuthError.InvalidCode. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1799,9 +1799,9 @@
       "android_component": "android/app/src/test/java/com/sikorokoro44/messengerpro/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "high: expired code acceptance enables old-message takeover",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "JVM unit test: expired code rejection test",
-      "verification_evidence": "",
+      "verification_evidence": "SecurityAndNetworkTest.expiredConsumedAndThrottledErrorsCarrySafeContractData with AuthError.CodeExpired; no server round trip. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1835,9 +1835,9 @@
       "android_component": "android/app/src/test/java/com/sikorokoro44/messengerpro/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "medium: throttling failures allow SMS abuse",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "JVM unit test: throttled response handling test",
-      "verification_evidence": "",
+      "verification_evidence": "SecurityAndNetworkTest throttled-error contract plus RetryAfterParser bounds; no server round trip. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1943,9 +1943,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "Supabase PostgreSQL Row Level Security policy contract; not configured.",
       "security_impact": "high: diagnostic leakage of secrets is critical",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: log redaction unit test",
-      "verification_evidence": "",
+      "verification_evidence": "DiagnosticsRedactor.error returns stable code only; SecurityAndNetworkTest verifies no message or secret is logged. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1961,9 +1961,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "Supabase PostgreSQL Row Level Security policy contract; not configured.",
       "security_impact": "medium: phone numbers are personal data",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: redaction unit test with sample numbers",
-      "verification_evidence": "",
+      "verification_evidence": "DiagnosticsRedactor.phone masks all but final four digits; SecurityAndNetworkTest asserts full number is absent. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {
@@ -1979,9 +1979,9 @@
       "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/security/",
       "backend_requirement": "None — client-only work.",
       "security_impact": "high: code logging defeats one-time verification",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Security unit test: code absence scan in log tests",
-      "verification_evidence": "",
+      "verification_evidence": "DiagnosticsRedactor.code returns fixed-length bullets; SecurityAndNetworkTest verifies code value is absent. Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 success on daaf9431d21a10dc9cb53fff522500a036e3e63b: 21 JVM unit tests pass (AuthStateMachineTest 5, BuildConfigurationTest 3, PhoneNormalizerTest 4, SecurityAndNetworkTest 5, SessionManagerTest 4) and 5 emulator tests pass (AppLaunchTest, IdentityScreenTest 2, EncryptedTokenStoreTest 2). Debug APK artifact 14398863320 SHA-256 9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7. Client boundary only; no backend or SMS delivery.",
       "blocker": ""
     },
     {

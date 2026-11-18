@@ -64,11 +64,13 @@ A batch is not complete merely because files or registry rows exist. Record comm
 - Debug APK: artifact `messenger-pro-debug`, `app-debug.apk`, SHA-256 `a3136b94aed85deee07ab77e8c8687635f02b39fa634a2918e657e9efd2f46ff`. Package name verified from the built APK with `aapt dump badging`.
 - Secret review: no credentials, signing keys, provider secrets or tokens in tracked files or any of the 20 pre-existing commits.
 - Documentation: README, BUILD_ORDER, ARCHITECTURE, SECURITY and features/README are present.
-- Known limitations: the authoritative 600-feature catalogue and an implementation-status file are still not present in this repository, so no MP feature is marked COMPLETE; CI uses hosted Gradle 8.9 because no wrapper is committed; `.github/workflows/android-release.yml` is untracked local work and belongs to Batch 7; no backend, SMS provider or authentication implementation exists yet.
+- Known limitations at run 12: the authoritative 600-feature catalogue and an implementation-status file are still not present in this repository, so no MP feature was marked COMPLETE; CI used hosted Gradle 8.9 because no wrapper was committed (a pinned wrapper was added later in Batch 2); `.github/workflows/android-release.yml` is untracked local work and belongs to Batch 7; no backend, SMS provider or authentication implementation existed yet.
 - Next permitted batch: Batch 2 — Identity, Backend & Core Security. Dependency mapping is recorded in `docs/BATCH_2_PLAN.md` using the explicitly labelled **RECONSTRUCTED — NOT ORIGINAL** catalogue proposal (`features/feature-catalogue.json`, `features/feature-catalogue.md`). Implementation remains BLOCKED until the reconstruction is reviewed and backend/SMS credentials are available.
 
-### Batch 2 — Identity, Backend & Core Security: PLANNING (not started)
+### Batch 2 — Identity, Backend & Core Security: IN PROGRESS (client boundary only)
 - Prerequisite: Batch 1 COMPLETE and re-verified on HEAD `e68344b5f76e08f7f18d8cea176cc62b785b8a8c` (CI run 13, success).
-- Feature IDs (reconstructed): `MP-041`–`MP-120`; status of every feature: NOT_STARTED.
+- Feature IDs (reconstructed): `MP-041`–`MP-120`. Nineteen pure-client features are `TESTED`; none is `COMPLETE`. Backend, SMS and server-enforced features remain `NOT_STARTED`/blocked.
 - Plan: `docs/BATCH_2_PLAN.md` (dependency graph, backend/auth/SMS architecture, OTP lifecycle, database, API contracts, threat review, tests, CI, exit criteria, risks).
-- Exit gate: unchanged; no Batch 2 feature may be marked COMPLETE without the evidence required in section 14 of the plan.
+- Verified client evidence: commits `d9ad485`, `1e9b07f`, `47588ab`, `3444c6f`, `4c3eb3e`, `daaf943`; CI runs 15, 16, 18 and 19 all success. Latest on HEAD `daaf9431d21a10dc9cb53fff522500a036e3e63b`: run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 — 21 JVM tests, 5 emulator tests, lint and debug APK all green; APK SHA-256 `9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7`.
+- Gradle wrapper is now committed and checksum-pinned (`d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab`); CI builds only through `./gradlew` on hosted runners.
+- Exit gate: unchanged; no Batch 2 feature may be marked COMPLETE without the evidence required in section 14 of the plan. Real delivered-code registration/sign-in is still BLOCKED on backend credentials and SMS funding.

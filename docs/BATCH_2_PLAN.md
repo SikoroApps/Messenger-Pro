@@ -1,8 +1,16 @@
 # Batch 2 plan — Identity, Backend & Core Security
 
-**Status: PLANNING — implementation not started.**
-**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE.**
+**Status: IN PROGRESS — client boundary implemented and CI-tested; backend, SMS and server-enforced features remain BLOCKED.**
+**Catalogue basis: `features/feature-catalogue.json` is labelled `RECONSTRUCTED — NOT ORIGINAL`. No feature is COMPLETE; 19 client-boundary features are TESTED.**
 **Phone number + OTP only. No email, no password, no mandatory Google account.**
+
+## Client-boundary progress (verified)
+- HEAD `daaf9431d21a10dc9cb53fff522500a036e3e63b`, Android CI run 19 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44239591272 — success, both jobs green; 21 JVM unit tests and 5 emulator tests pass, lint clean, debug APK SHA-256 `9cc3a4f937c64679c6824c87de3baa7e3b3286c91f4cef73f898ace7015e66d7` (artifact `14398863320`).
+- Implemented and CI-tested at the client boundary: `MP-047`, `MP-049`, `MP-051`–`MP-053`, `MP-056`, `MP-087`–`MP-090`, `MP-093`, `MP-096`, `MP-100`–`MP-102`, `MP-104`, `MP-110`–`MP-112`. Each row in the catalogue carries the exact test and artifact evidence.
+- These are `TESTED`, not `COMPLETE`: the reconstructed catalogue's linear prerequisite chains include backend, SMS and end-to-end gates that cannot be satisfied without credentials and funding. Client work was selected because it is independently verifiable and introduces no partial identity claim.
+- Next: TLS-only transport policy and timeouts (`MP-048`, `MP-050`), phone input masking (`MP-054`), manual code interaction (`MP-065`, `MP-066`), client cooldown (`MP-073`), authenticated request/refresh wrapper (`MP-091`, `MP-092`), bounded retry/backoff and offline handling (`MP-097`–`MP-099`).
+
+
 
 ---
 
