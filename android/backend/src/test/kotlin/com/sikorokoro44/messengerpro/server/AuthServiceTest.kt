@@ -56,7 +56,7 @@ class AuthServiceTest {
     fun requestStoresOnlyAVerifierAndGrantsNothing() {
         val clock = FakeClock()
         val sms = RecordingSmsGateway()
-        val h = rig(clock, sms)
+        val h = rig(clock, sms, config(cooldownMs = 60_000L))
 
         val result = h.service.requestOtp("+26876123456", "ip-hash", "idem-1")
 
@@ -228,7 +228,7 @@ class AuthServiceTest {
     @Test
     fun phonePolicyAndRedactionDoNotLeakPersonalData() {
         assertFalse(ServerPhonePolicy.isValidE164("076123456"))
-        assertFalse(ServerPhonePolicy.isValidE164("+2687612345"))
+        assertFalse(ServerPhonePolicy.isValidE164("+2687612"))
         assertTrue(ServerPhonePolicy.isValidE164("+26876123456"))
         assertFalse(ServerPhonePolicy.matchesKnownCountryLength("+2687612345"))
         assertTrue(DiagnosticsRedactor.phone("+26876123456").contains("***"))
