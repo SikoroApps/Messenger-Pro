@@ -67,6 +67,7 @@ class AuthService(
     private val rateLimiter: RateLimiter,
     private val cooldown: ResendCooldown,
     private val tokens: TokenService,
+    private val deliveries: SmsDeliveryReceiptService,
 ) {
     private val hasher = OtpHasher(config.pepper)
     private val codeGenerator = OtpCodeGenerator()
@@ -123,11 +124,16 @@ class AuthService(
         otps.invalidateActiveForPhone(phone, now)
         otps.save(record)
 
-        if (sms.send(phone, code, requestId).status != SmsDelivery.Status.SENT) {
+        val smsDelivery = sms.send(phone, code, requestId)
+        if (smsDelivery.status != SmsDelivery.Status.SENT || smsDelivery.providerMessageId.isNullOrBlank()) {
             record.failedAt = now
+            smsDelivery.providerMessageId?.takeIf { it.isNotBlank() }?.let {
+                deliveries.recordProviderFailure(requestId, it, SmsFailureReason.PROVIDER_UNAVAILABLE)
+            }
             throw AuthException(AuthFailure.PROVIDER_UNAVAILABLE)
         }
 
+        deliveries.recordHandoff(requestId, smsDelivery.providerMessageId!!)
         cooldown.mark(phoneHash)
         val result = OtpRequestResult(
             requestId = requestId,
@@ -179,6 +185,7 @@ data class ServerHarness(
     val otps: InMemoryOtpRepository,
     val accounts: InMemoryAccountRepository,
     val sessions: InMemorySessionRepository,
+    val smsDeliveries: InMemorySmsDeliveryLog,
 )
 
 object AuthServiceFactory {
@@ -191,6 +198,7 @@ object AuthServiceFactory {
         val otps = InMemoryOtpRepository()
         val accounts = InMemoryAccountRepository(ids)
         val sessions = InMemorySessionRepository()
+        val smsDeliveries = InMemorySmsDeliveryLog()
         val service = AuthService(
             config = config,
             clock = clock,
@@ -202,7 +210,8 @@ object AuthServiceFactory {
             rateLimiter = RateLimiter(clock),
             cooldown = ResendCooldown(clock, config.cooldownMs),
             tokens = TokenService(config.pepper, ids, clock, sessions),
+            deliveries = SmsDeliveryReceiptService(clock, smsDeliveries),
         )
-        return ServerHarness(service, otps, accounts, sessions)
+        return ServerHarness(service, otps, accounts, sessions, smsDeliveries)
     }
 }
