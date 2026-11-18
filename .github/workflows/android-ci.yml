@@ -127,12 +127,20 @@ jobs:
           yes | "${{ steps.sdk.outputs.path }}" --licenses > /dev/null
           set -o pipefail
           sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" "system-images;android-35;google_apis;x86_64"
+      - name: Enable KVM access for emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo chmod 666 /dev/kvm
+          ls -l /dev/kvm
       - name: Run emulator smoke test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           target: google_apis
           arch: x86_64
+          disable-linux-hw-accel: false
           working-directory: android
           script: gradle connectedDebugAndroidTest --no-daemon
       - name: Upload device test results
