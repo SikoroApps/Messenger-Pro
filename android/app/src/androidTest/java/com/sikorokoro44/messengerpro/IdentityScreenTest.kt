@@ -9,7 +9,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTestTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -90,7 +90,7 @@ class IdentityScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithTestTag("country_selector").performClick()
+        composeRule.onNodeWithTag("country_selector").performClick()
         composeRule.onNodeWithText("South Africa (+27)").performClick()
         composeRule.onNodeWithText("South Africa (+27)").assertIsDisplayed()
     }
@@ -112,8 +112,8 @@ class IdentityScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithTestTag("phone_input").performTextInput("076123456")
-        composeRule.onNodeWithTestTag("phone_input").assertTextEquals("+268 76 123 456")
+        composeRule.onNodeWithTag("phone_input").performTextInput("076123456")
+        composeRule.onNodeWithTag("phone_input").assertTextEquals("+268 76 123 456")
     }
 
     @Test
@@ -133,8 +133,8 @@ class IdentityScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithTestTag("code_input").performTextInput("48a2-9 13")
-        composeRule.onNodeWithTestTag("code_input").assertTextEquals("482913")
+        composeRule.onNodeWithTag("code_input").performTextInput("48a2-9 13")
+        composeRule.onNodeWithTag("code_input").assertTextEquals("482913")
         composeRule.onNodeWithText("Verify code").assertIsEnabled()
     }
 }
