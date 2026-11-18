@@ -17,6 +17,9 @@
   network interceptor), so a redirect cannot leak the token to another host.
 - Android permissions must be least-privilege and requested just in time.
 - Use SMS Retriever / SMS User Consent for OTP autofill; do not use broad SMS-reading permissions.
+- Keep verification messages to one isolated six-digit code and restrict parsing to locale-specific
+  verification keywords with letter boundaries, so ordinary numbers in a message cannot become a
+  code. Localized copy still needs human review before release.
 - Add dependency scanning and review third-party SDK data collection before release.
 - Rotate any secret suspected to have entered logs, commits, or client binaries.
 - Release signing keys are stored as protected GitHub Actions secrets, never in repository files.

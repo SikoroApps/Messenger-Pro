@@ -54,6 +54,12 @@ allowlist. It is installed as an OkHttp network interceptor so redirects are re-
 the header is attached. Client tests cover allowlisted attachment, stripping on unrelated hosts,
 cleartext rejection and redirect leakage.
 
+Verification SMS copy is a short, locale-tagged template (`VerificationMessageTemplate`): one
+isolated six-digit code, an English (`en`) or siSwati (`ss`) verification phrase, and an optional
+trailing retriever hash. `SmsOtpExtractor` accepts locale-specific keyword lists with Unicode-safe
+letter boundaries and rejects ambiguous or non-verification messages. This is a client contract;
+no delivered message, OS retriever consent flow or human-reviewed siSwati copy is evidenced.
+
 Client-side retry is deliberately narrow: `RetryPolicy` retries only transient failures of
 idempotent work, applies full jitter within a bounded exponential window (maximum delay 8 s,
 at most 3 attempts), and `RetryBudget` caps total network calls for a sign-in attempt. Unit tests

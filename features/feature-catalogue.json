@@ -1256,13 +1256,13 @@
         "MP-040",
         "MP-071"
       ],
-      "android_component": "backend/ contracts and migrations (not present in repository)",
+      "android_component": "android/app/src/main/java/com/sikorokoro44/messengerpro/data/auth/; backend/ contracts and migrations (not present in repository)",
       "backend_requirement": "Supabase Edge Function contract; not configured.",
       "security_impact": "low: template changes can break autofill detection",
-      "status": "NOT_STARTED",
+      "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: message template extraction test",
-      "verification_evidence": "",
-      "blocker": "SMS delivery provider credentials not configured."
+      "verification_evidence": "Android CI run 58 https://github.com/SikoroApps/Messenger-Pro/actions/runs/44269961154 success on 887e6bed31b9ba4456bec232ecf56ff8999d1e37: 57 app JVM tests, 39 backend JVM tests, 11 API 35 emulator tests, lint 0 errors/11 warnings, debug APK SHA-256 9bee0152e7e2d45460291afb17731203f9e64bf0778a43a60fc746c5b1c129fd. VerificationMessageTemplate renders one isolated six-digit code for English (`en`) and siSwati (`ss`) with an optional retriever hash; SmsOtpExtractorTest.localizedTemplatesRoundTripThroughTheExtractor, languageTagFallsBackToEnglishForUnsupportedLocales, templateKeepsOneIsolatedSixDigitCodeAndRejectsInvalidCodes and customKeywordListsUseUnicodeSafeBoundaries cover extraction, fallback, code isolation/invalid codes and Unicode-safe keyword boundaries. This is a client template/parser contract only; no provider delivery, hosted Edge Function or human-reviewed siSwati copy is evidenced.",
+      "blocker": "SMS provider credentials/funding and human review of localized copy are unavailable; real delivered-message autofill remains unverified."
     },
     {
       "feature_id": "MP-073",
