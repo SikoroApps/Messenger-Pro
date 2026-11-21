@@ -2,9 +2,9 @@
 
 ## Repository state
 - Repository: `SikoroApps/Messenger-Pro` (public), branch `main`.
-- Current HEAD: `ca8cb73ecee58c48ddc40ae0b2d26f179ab6b30a` — `ci: print debug APK checksum in verification logs`; CI run `44356132108` (success, both jobs).
-- Earlier code HEAD: `bcc8ac2a735b72ad2ff8f861446b97b2ab711189` — `feat: wire provider HTTP contract to eSMS and Supabase adapters`; CI run `44350395975` (success, both jobs).
-- Earlier verified code HEAD: `df30bffe8feb13db06ed22e307feddd62b81e01a` — `test: use a distinct refresh hash fixture in Supabase adapter test`; CI run `44337788301` (success, both jobs).
+- Current HEAD: `41dbe93ec7a41e2ceaf79389e5f07d4467881cac` — `test: cover account boundaries and add gated migration workflow`; CI run `44376666862` (success, both jobs).
+- Earlier code HEAD: `a172562947c47a77164017bbd69ed4c200c74ff7` — `ci: probe optional Supabase deployment credentials`; Android CI run `44374425974` and credentials probe `44374465003` (success).
+- Earlier verified code HEAD: `ca8cb73ecee58c48ddc40ae0b2d26f179ab6b30a` — `ci: print debug APK checksum in verification logs`; CI run `44356132108` (success, both jobs).
 - `.github/workflows/android-release.yml` remains untracked local Batch 7 scaffolding and must not be added accidentally.
 - No local Android SDK or Gradle builds were run. All compile/test evidence comes from GitHub Actions.
 
@@ -19,6 +19,7 @@
 - Runtime credential probe verified all eight organization secrets, keystore/alias, both Supabase keys and eSMS sandbox start/check without printing values (run `44336159672`). Secret visibility restriction still needs `admin:org`.
 - Added eSMS Verify adapter (`ESmsVerify.kt`), provider-managed OTP service (`ProviderOtp.kt`), Supabase REST adapters (`Supabase.kt`) and deny-by-default RLS migration (`supabase/migrations/0001_identity_foundation.sql`), with 17 new backend tests passing in run `44337788301`. No real SMS delivery or hosted deployment is claimed.
 - Wired the documented HTTP endpoints to the provider/Supabase adapters in `ProviderAuthHttp.kt`. Provider OTP attempts and terminal failures are now persisted, so retries cannot reset the counter or revive a failed request. Five `ProviderAuthHttpTest` cases verify request/verify/refresh/logout, idempotency, wrong-code, replay, durable attempt limits and generic provider failures over real loopback sockets with a fake transport for both pinned hosts. CI now prints the debug APK SHA-256 in the job log. Run `44356132108` is green with 72 backend tests; no real provider or database was contacted.
+- Added three provider-HTTP account/anti-enumeration tests and two client secret-boundary tests. Run `44376666862` is green with 59 app JVM and 75 backend JVM tests, lint clean, API 35 emulator smoke green, APK SHA-256 `2a2581344c051e8103f2bb800dd7e0c1c3d635c794425c4f969c6763026506fa`, and the new client artifact secret-marker scan passed. Added `.github/workflows/supabase-migration.yml` gated on `DEPLOY-IDENTITY-0001`; optional deployment credentials were re-probed in run `44374465003` and are absent, so no migration was applied.
 - Contract/evidence docs: `docs/API.md`, `docs/DATABASE.md`, `docs/TESTING.md`, `docs/CREDENTIALS.md`, `android/backend/README.md`.
 - Batch records in `docs/BUILD_ORDER.md` and `docs/PROGRESS.md` updated honestly; no batch marked complete.
 
@@ -63,19 +64,21 @@
 | `44346976216` | `ea05d66` | success | documentation-only commit re-verified; code evidence stays on run `44337788301` |
 | `44350395975` | `bcc8ac2` | success | 57 app JVM tests, 72 backend JVM tests (5 new `ProviderAuthHttpTest` cases), API 35 emulator smoke job green, lint clean, debug APK |
 | `44356132108` | `ca8cb73` | success | same code tests as `bcc8ac2` plus CI checksum logging; 57 app JVM tests, 72 backend JVM tests, API 35 emulator smoke job green, lint clean, debug APK |
+| `44374425974` | `a172562` | success | optional deployment-credential probe added; 57 app JVM tests, 72 backend JVM tests, API 35 emulator smoke green, lint clean, debug APK |
+| `44376666862` | `41dbe93` | success | 59 app JVM tests (two secret-boundary cases), 75 backend JVM tests (three account/anti-enumeration cases), API 35 emulator smoke job green, lint clean, APK secret-marker scan passed, debug APK |
 
-Separate workflow: Credentials probe `44336159672` on `b5d54f9` succeeded; see `docs/CREDENTIALS.md`.
+Separate workflows: Credentials probe `44336159672` on `b5d54f9` succeeded; re-probe `44374465003` on `a172562` succeeded and confirmed the three optional Supabase deployment secrets are absent. See `docs/CREDENTIALS.md`.
 
-Latest code evidence is run `44356132108` on the exact code HEAD. Artifacts `messenger-pro-backend-test-results` (`14453405981`) and `messenger-pro-debug` (`14452241276`) are published under that run; the APK SHA-256 is printed directly in the `verify` job log.
-Latest debug APK SHA-256: `a90eb73ad16ba078ab41b3b12a16b32fe952c35215feab80acc20512763c3c72`.
+Latest code evidence is run `44376666862` on the exact code HEAD. APK checksum and the artifact secret-marker scan are printed directly in the `verify` job log.
+Latest debug APK SHA-256: `2a2581344c051e8103f2bb800dd7e0c1c3d635c794425c4f969c6763026506fa`.
 
 ## Exact blockers
 1. Organization secret visibility cannot be restricted/inspected without the `admin:org` scope: `gh auth refresh -h github.com -s admin:org` is the one-time user action needed. Runtime accessibility is already proven.
-2. No hosted migration/Edge Function deployment has been performed; no `SUPABASE_ACCESS_TOKEN`/project ref was available. Deployed schema, RLS and server-authorised runtime behaviour remain unverified.
+2. The gated migration workflow exists but no hosted migration/Edge Function deployment has been performed; `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF` and `SUPABASE_DB_PASSWORD` were re-probed and are absent. Deployed schema, RLS and server-authorised runtime behaviour remain unverified.
 3. eSMS is proven in test mode only. Real `+268` delivery requires a production key, wallet credits and an approved sender ID; sandbox codes are never delivery evidence.
 4. Original 600-feature catalogue unavailable → reconstruction stays labelled and awaiting review.
 5. Device-only behaviours need a physical device or documented emulator with the required capability.
 6. Release workflow remains untracked scaffolding until a signed artifact/checksum is CI-evidenced; Play Console rollout needs separate authorization.
 
 ## Next specific task
-Server-side endpoint wiring is done and CI-tested. Next: add deployment automation for the reviewed migration and server functions when a Supabase project ref/access token exists, then obtain a real delivered `+268` sign-in and hosted authorization evidence. Keep Batch 2 gated; do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced. The one-time user action for secret restriction remains `gh auth refresh -h github.com -s admin:org`.
+Server-side endpoint wiring and the gated migration workflow are in place and CI-tested. Next: create the three Supabase deployment secrets, dispatch `.github/workflows/supabase-migration.yml` with `DEPLOY-IDENTITY-0001`, verify the post-deploy RLS assertions, add server-function deployment, then obtain a real delivered `+268` sign-in and hosted authorization evidence. Keep Batch 2 gated; do not mark any feature `COMPLETE` or any batch closed until the exit gates in `docs/BUILD_ORDER.md` are evidenced. The one-time user action for secret restriction remains `gh auth refresh -h github.com -s admin:org`.

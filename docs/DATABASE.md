@@ -5,7 +5,11 @@ that a deployed adapter must satisfy; the in-memory repositories in `android/bac
 the same semantics for CI.
 
 The reviewed migration `supabase/migrations/0001_identity_foundation.sql` defines these tables.
-It enables RLS on all of them and grants no `anon` or `authenticated` access.
+It enables RLS on all of them and grants no `anon` or `authenticated` access. The gated workflow
+`.github/workflows/supabase-migration.yml` can dry-run, apply and verify that contract after
+`SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF` and `SUPABASE_DB_PASSWORD` are configured and the
+`DEPLOY-IDENTITY-0001` confirmation is supplied. It has not been dispatched: the deployment
+credentials were re-probed in run `44374465003` and are absent.
 
 | Table | Columns | Client access |
 | --- | --- | --- |

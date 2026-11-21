@@ -775,7 +775,7 @@
       "security_impact": "high: mixing secret and public config leaks credentials",
       "status": "TESTED",
       "test_requirement": "Security unit test: secret-boundary review and client binary scan",
-      "verification_evidence": "SecretBoundaryTest asserts client BuildConfig exposes only AUTH_BASE_URL and AUTH_HOST_ALLOWLIST and that client sources contain no service-role/eSMS markers; CI APK secret-marker scan added. Static/artifact evidence only.",
+      "verification_evidence": "SecretBoundaryTest asserts client BuildConfig exposes only AUTH_BASE_URL and AUTH_HOST_ALLOWLIST and that client sources contain no service-role/eSMS markers; CI APK secret-marker scan added. Static/artifact evidence only. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": ""
     },
     {
@@ -793,7 +793,7 @@
       "security_impact": "high: service role in a client bypasses all authorization",
       "status": "TESTED",
       "test_requirement": "Security unit test: client artifact scan for service role strings",
-      "verification_evidence": "SecretBoundaryTest and CI APK scan prove no service-role credential in client sources or artifact; SupabaseRestAdapterTest proves apikey-only host-pinned server transport. Hosted runtime secret injection remains undeployed.",
+      "verification_evidence": "SecretBoundaryTest and CI APK scan prove no service-role credential in client sources or artifact; SupabaseRestAdapterTest proves apikey-only host-pinned server transport. Hosted runtime secret injection remains undeployed. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
     },
     {
@@ -1423,7 +1423,7 @@
       "security_impact": "high: creating accounts before verification enables junk records",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: creation ordering test against mocked function",
-      "verification_evidence": "ProviderAuthHttpTest.accountIsCreatedOnlyAfterVerifiedOtpAndCarriesTheContractFields verifies no account exists before a valid provider-approved verification, then asserts account fields through the loopback HTTP adapter with fake eSMS and Supabase transports.",
+      "verification_evidence": "ProviderAuthHttpTest.accountIsCreatedOnlyAfterVerifiedOtpAndCarriesTheContractFields verifies no account exists before a valid provider-approved verification, then asserts account fields through the loopback HTTP adapter with fake eSMS and Supabase transports. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
     },
     {
@@ -1441,7 +1441,7 @@
       "security_impact": "high: schema errors can expose or corrupt identity data",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: schema field contract test",
-      "verification_evidence": "ProviderAuthHttpTest.accountIsCreatedOnlyAfterVerifiedOtpAndCarriesTheContractFields asserts phone, state, created_at, id and display_name on the account row returned by the mocked Supabase repository.",
+      "verification_evidence": "ProviderAuthHttpTest.accountIsCreatedOnlyAfterVerifiedOtpAndCarriesTheContractFields asserts phone, state, created_at, id and display_name on the account row returned by the mocked Supabase repository. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
     },
     {
@@ -1459,7 +1459,7 @@
       "security_impact": "high: enumeration reveals which numbers use the product",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: response equality test for known and unknown numbers",
-      "verification_evidence": "ProviderAuthHttpTest.knownAndUnknownNumbersHaveTheSamePublicAuthResponses verifies identical public request shape and generic verification failure messages for known and unknown numbers over loopback HTTP.",
+      "verification_evidence": "ProviderAuthHttpTest.knownAndUnknownNumbersHaveTheSamePublicAuthResponses verifies identical public request shape and generic verification failure messages for known and unknown numbers over loopback HTTP. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
     },
     {
@@ -1477,7 +1477,7 @@
       "security_impact": "medium: race conditions can create duplicate identities",
       "status": "TESTED",
       "test_requirement": "Contract review and mock-server test: concurrent verification test",
-      "verification_evidence": "ProviderAuthHttpTest.repeatedVerificationReusesTheExistingAccountAndCreatesASeparateSession verifies two successful verifications for one phone retain one account id and create separate sessions through the mocked Supabase repository.",
+      "verification_evidence": "ProviderAuthHttpTest.repeatedVerificationReusesTheExistingAccountAndCreatesASeparateSession verifies two successful verifications for one phone retain one account id and create separate sessions through the mocked Supabase repository. CI run 44376666862 on HEAD 41dbe93ec7a41e2ceaf79389e5f07d4467881cac: green (59 app JVM, 75 backend JVM).",
       "blocker": "Supabase project, backend credentials and Edge Function deployment not configured."
     },
     {

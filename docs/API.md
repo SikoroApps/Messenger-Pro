@@ -39,9 +39,12 @@ Rules enforced by the reference core:
 In the provider-backed adapter the plaintext code is owned by eSMS: it is never generated, hashed,
 persisted or logged by this repository. The server stores only the opaque verification id plus a
 conditional consume marker, and increments a durable attempt counter before each provider check.
-`ProviderAuthHttpTest` drives request, verify, refresh, logout, idempotent retry, wrong-code and
-attempt-limit flows through real HTTP sockets with one fake transport for both pinned eSMS and
-Supabase hosts; no real provider or database is contacted.
+`ProviderAuthHttpTest` drives request, verify, refresh, logout, idempotent retry, wrong-code,
+attempt-limit, account-lifecycle and anti-enumeration flows through real HTTP sockets with one fake
+transport for both pinned eSMS and Supabase hosts; no real provider or database is contacted. The
+account tests prove no row exists before provider approval, one phone reuses one account across
+separate sign-ins, and known/unknown numbers return the same public response shape and generic
+failure message.
 
 ## Loopback HTTP adapter status mapping
 
@@ -95,6 +98,12 @@ at most 3 attempts), and `RetryBudget` caps total network calls for a sign-in at
 verify the doubling window, seeded jitter bounds, the transient/idempotent gate and the hard call
 ceiling. This is a transport-policy control, not a deployed retry executor or a substitute for
 server-side rate limits.
+
+The client build configuration declares only `AUTH_BASE_URL` and `AUTH_HOST_ALLOWLIST`;
+`SecretBoundaryTest` asserts this and scans client sources for service-role/eSMS markers. CI also
+scans the built debug APK's dex and resource strings for the same markers. Both checks passed in
+run `44376666862`. This is artifact/static evidence that no server secret ships in the client, not
+evidence of a deployed secret-injection runtime.
 
 ## Not yet deployed
 
